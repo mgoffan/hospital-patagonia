@@ -2,7 +2,16 @@
 
 Este directorio reúne la investigación previa al plan de implementación de Hospital Patagonia. Su objetivo es separar las reglas observadas, las inferencias y las decisiones propuestas antes de construir el producto.
 
-## Documentos
+## Especificación y plan
+
+1. [Especificación de producto](./product-spec.md)
+2. [Game Design Document](./game-design-document.md)
+3. [Modelo de dominio](./domain-model.md)
+4. [Plan de implementación](./implementation-plan.md)
+5. [Criterios de aceptación](./acceptance-criteria.md)
+6. [Architecture Decision Records](./architecture-decisions/README.md)
+
+## Investigación de base
 
 1. [Fuentes y alcance](./sources-and-scope.md)
 2. [Reglas de la simulación](./simulation-rules.md)
@@ -19,7 +28,8 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 - Inspección del bundle público de la webapp: completa, con las limitaciones indicadas en la auditoría.
 - Inventario de las 17 fotografías: completo.
 - Lectura de los cinco QR visibles: completa.
-- Plan de implementación: pendiente; se elaborará después de validar el concepto y las preguntas abiertas.
+- Especificación y plan de implementación: completos con supuestos provisionales explícitos.
+- Implementación: pendiente; la próxima etapa es `M0 - Foundation`.
 
 ## Principio rector
 

@@ -1,8 +1,8 @@
 # Hospital Patagonia
 
-Repositorio inicial del proyecto Hospital Patagonia.
+Webapp educativa first-person para explorar Gestión de Operaciones en Servicios mediante la simulación de un hospital de emergencias.
 
-La especificación funcional y técnica se incorporará en los próximos commits.
+El proyecto se encuentra en fase de planificación, con el MVP, el modelo de dominio y el roadmap documentados antes de comenzar la implementación.
 
 ## Documentación
 
