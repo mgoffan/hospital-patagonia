@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Editors
+.idea/
+.vscode/
+
+# Dependencies and generated output
+node_modules/
+dist/
+coverage/
