@@ -44,23 +44,24 @@ export function App() {
         </a>
         <span className="build-tag">
           PRE-ALPHA ·{" "}
-          {simulation ? "DEBRIEF" : operationStarted ? "M4 FLOW" : "SETUP"}
+          {operationStarted ? "M4 FLOW" : simulation ? "DEBRIEF" : "SETUP"}
         </span>
       </header>
 
-      {simulation ? (
+      {simulation && !operationStarted ? (
         <RoundDebrief simulation={simulation} onNewRound={reset} />
-      ) : operationStarted && configuration ? (
+      ) : operationStarted && configuration && simulation ? (
         <Suspense
           fallback={<div className="route-loader">Cargando hospital 3D…</div>}
         >
           <GameOperation
             configuration={configuration}
+            simulation={simulation}
             onBack={() => {
+              setSimulation(null);
               setOperationStarted(false);
             }}
             onComplete={() => {
-              setSimulation(runSimulation(configuration));
               setOperationStarted(false);
             }}
           />
@@ -72,6 +73,7 @@ export function App() {
             setConfiguration(null);
           }}
           onRun={() => {
+            setSimulation(runSimulation(configuration));
             setOperationStarted(true);
           }}
         />

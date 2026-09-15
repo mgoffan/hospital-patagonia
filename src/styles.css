@@ -1257,11 +1257,43 @@ summary:focus-visible {
   text-transform: uppercase;
 }
 
-.operation-brief > p:last-child {
+.operation-brief > p:not(.eyebrow) {
   margin: 10px 0 0;
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.45;
+}
+
+.live-flow-stats {
+  display: grid;
+  margin: 13px 0 0;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgba(23, 37, 46, 0.25);
+}
+
+.live-flow-stats > div {
+  display: grid;
+  padding: 8px 8px 0 0;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.live-flow-stats > div + div {
+  padding-left: 8px;
+  border-left: 1px solid rgba(23, 37, 46, 0.2);
+}
+
+.live-flow-stats dt {
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.live-flow-stats dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 950;
 }
 
 .movement-panel {
@@ -1374,6 +1406,25 @@ summary:focus-visible {
   font-weight: 950;
   letter-spacing: 0.08em;
   white-space: nowrap;
+}
+
+.patient-world-tag {
+  display: block;
+  padding: 3px 6px;
+  border: 1px solid rgba(23, 37, 46, 0.55);
+  border-radius: 10px;
+  background: rgba(244, 233, 216, 0.82);
+  color: #17252e;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.patient-world-tag.vip {
+  border-color: #e94f8a;
+  background: rgba(233, 79, 138, 0.9);
+  color: white;
 }
 
 @media (max-width: 1050px) {
