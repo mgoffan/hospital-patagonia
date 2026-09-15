@@ -1,16 +1,21 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 
+import type { SimulationResult } from "../../simulation/engine";
 import { HospitalScene } from "../../three/HospitalScene";
 
 type HospitalViewportProps = {
   turnSignal: number;
   stepSignal: number;
+  simulation: SimulationResult;
+  elapsedMs: number;
 };
 
 export default function HospitalViewport({
   turnSignal,
   stepSignal,
+  simulation,
+  elapsedMs,
 }: HospitalViewportProps) {
   return (
     <Canvas
@@ -20,7 +25,12 @@ export default function HospitalViewport({
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
       <Suspense fallback={null}>
-        <HospitalScene turnSignal={turnSignal} stepSignal={stepSignal} />
+        <HospitalScene
+          turnSignal={turnSignal}
+          stepSignal={stepSignal}
+          simulation={simulation}
+          elapsedMs={elapsedMs}
+        />
       </Suspense>
     </Canvas>
   );

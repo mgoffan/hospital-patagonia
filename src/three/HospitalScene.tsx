@@ -1,14 +1,27 @@
 import { Edges, Html, RoundedBox, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { Physics, RigidBody } from "@react-three/rapier";
-import { useRef } from "react";
+import {
+  CapsuleCollider,
+  CuboidCollider,
+  Physics,
+  RigidBody,
+  type RapierRigidBody,
+} from "@react-three/rapier";
+import { useMemo, useRef } from "react";
 import { Group, Vector3 } from "three";
 
+import type { SimulationResult, StationId } from "../simulation/engine";
+import {
+  deriveVisualPatientStates,
+  type VisualPatientState,
+} from "../simulation/visualTimeline";
 import { FirstPersonController } from "./FirstPersonController";
 
 type HospitalSceneProps = {
   turnSignal: number;
   stepSignal: number;
+  simulation: SimulationResult;
+  elapsedMs: number;
 };
 
 type BoxProps = {
@@ -431,7 +444,16 @@ function OpenDoor({
   color: string;
 }) {
   return (
-    <group position={position} rotation={[0, -Math.PI / 2.7, 0]}>
+    <RigidBody
+      type="fixed"
+      colliders={false}
+      position={position}
+      rotation={[0, -Math.PI / 2.7, 0]}
+    >
+      <CuboidCollider
+        args={[DOOR_WIDTH / 2, 1.06, 0.045]}
+        position={[DOOR_WIDTH / 2, 1.06, 0]}
+      />
       <DecorativeBox
         position={[DOOR_WIDTH / 2, 1.06, 0]}
         dimensions={[DOOR_WIDTH, 2.12, 0.09]}
@@ -441,7 +463,7 @@ function OpenDoor({
         <sphereGeometry args={[0.07, 8, 6]} />
         <meshToonMaterial color="#ffd166" />
       </mesh>
-    </group>
+    </RigidBody>
   );
 }
 
@@ -575,57 +597,190 @@ function HumanFigure({
   );
 }
 
-function MovingPatient({
-  path,
-  offset,
+function StationWorker({
+  position,
   topColor,
-  vip = false,
+  phase,
 }: {
-  path: [number, number, number][];
-  offset: number;
+  position: [number, number, number];
   topColor: string;
-  vip?: boolean;
+  phase: number;
 }) {
-  const mover = useRef<Group>(null);
-  const from = useRef(new Vector3());
-  const to = useRef(new Vector3());
+  return (
+    <RigidBody type="fixed" colliders={false} position={position}>
+      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.95, 0]} />
+      <HumanFigure position={[0, 0, 0]} topColor={topColor} phase={phase} />
+    </RigidBody>
+  );
+}
 
-  useFrame(({ clock }) => {
-    const group = mover.current;
-    if (!group || path.length < 2) return;
-    const progress = (clock.elapsedTime * 0.12 + offset) % 1;
-    const scaled = progress * (path.length - 1);
-    const segment = Math.min(Math.floor(scaled), path.length - 2);
-    const segmentProgress = scaled - segment;
-    const start = path[segment];
-    const end = path[segment + 1];
-    if (!start || !end) return;
+const servicePositions: Record<StationId, [number, number, number][]> = {
+  administration: [[-7.5, 0, 5.15]],
+  nursing: [
+    [-11.7, 0, -3.35],
+    [-9.5, 0, -3.35],
+  ],
+  doctor: [
+    [-4.25, 0, -3.15],
+    [0.75, 0, -3.15],
+  ],
+  xray: [[9.4, 0, -3.15]],
+};
 
-    from.current.set(...start);
-    to.current.set(...end);
-    group.position.lerpVectors(from.current, to.current, segmentProgress);
-    group.rotation.y = Math.atan2(end[0] - start[0], end[2] - start[2]);
+const queueOrigins: Record<StationId, [number, number, number]> = {
+  administration: [-3.8, 0, 4.1],
+  nursing: [-12.4, 0, 1.25],
+  doctor: [-6.8, 0, 1.35],
+  xray: [8.2, 0, 1.25],
+};
+
+function patientTarget(state: VisualPatientState): [number, number, number] {
+  if (state.activity === "inService") {
+    const positions = servicePositions[state.stationId];
+    return positions[state.resourceSlot ?? 0] ?? positions[0] ?? [0, 0, 0];
+  }
+
+  const origin = queueOrigins[state.stationId];
+  const columns = state.stationId === "administration" ? 4 : 3;
+  const column = state.queueIndex % columns;
+  const row = Math.floor(state.queueIndex / columns);
+  return [origin[0] + column * 0.82, 0, origin[2] + row * 0.82];
+}
+
+function roomPassageX(x: number) {
+  if (x < -8) return -10.62;
+  if (x < -3) return -5.12;
+  if (x < 2) return -0.12;
+  if (x < 7) return 4.88;
+  return 10.88;
+}
+
+function roomIndexForX(x: number) {
+  if (x < -8) return 0;
+  if (x < -3) return 1;
+  if (x < 2) return 2;
+  if (x < 7) return 3;
+  return 4;
+}
+
+function navigationWaypoint(
+  current: Vector3,
+  destination: Vector3,
+  waypoint: Vector3,
+) {
+  const insideRoom = current.z < -0.72;
+  const destinationInsideRoom = destination.z < -0.72;
+
+  if (
+    insideRoom &&
+    destinationInsideRoom &&
+    roomIndexForX(current.x) === roomIndexForX(destination.x)
+  ) {
+    return waypoint.copy(destination);
+  }
+
+  if (insideRoom) {
+    const exitX = roomPassageX(current.x);
+    if (Math.abs(current.x - exitX) > 0.08) {
+      return waypoint.set(exitX, 0, current.z);
+    }
+    return waypoint.set(exitX, 0, 0.9);
+  }
+
+  if (destinationInsideRoom) {
+    const entranceX = roomPassageX(destination.x);
+    if (Math.abs(current.x - entranceX) > 0.08 || current.z > 1.05) {
+      return waypoint.set(entranceX, 0, 0.9);
+    }
+    if (current.z > -0.82) return waypoint.set(entranceX, 0, -0.9);
+  }
+
+  return waypoint.copy(destination);
+}
+
+function PatientActor({ state }: { state: VisualPatientState }) {
+  const body = useRef<RapierRigidBody>(null);
+  const visual = useRef<Group>(null);
+  const target = patientTarget(state);
+  const targetVector = useRef(new Vector3());
+  const currentVector = useRef(new Vector3());
+  const waypointVector = useRef(new Vector3());
+  const vip = state.kind === "vip";
+  const patientColors = ["#d98355", "#738caf", "#b98755", "#6d9c82"];
+  const topColor =
+    patientColors[(state.code - 1) % patientColors.length] ?? "#738caf";
+
+  useFrame((_state, delta) => {
+    const rigidBody = body.current;
+    if (!rigidBody) return;
+    const translation = rigidBody.translation();
+    currentVector.current.set(translation.x, translation.y, translation.z);
+    targetVector.current.set(...target);
+    const waypoint = navigationWaypoint(
+      currentVector.current,
+      targetVector.current,
+      waypointVector.current,
+    );
+    const distance = currentVector.current.distanceTo(waypoint);
+    if (distance < 0.025) return;
+
+    const step = Math.min(distance, delta * 2.35);
+    const direction = waypoint.sub(currentVector.current).normalize();
+    const next = currentVector.current.addScaledVector(direction, step);
+    rigidBody.setNextKinematicTranslation(next);
+    if (visual.current)
+      visual.current.rotation.y = Math.atan2(direction.x, direction.z);
   });
 
   return (
-    <group ref={mover}>
-      <HumanFigure
-        position={[0, 0, 0]}
-        topColor={topColor}
-        bottomColor={vip ? "#713e78" : "#3d5b6d"}
-        skinColor={vip ? "#d8a077" : "#b97e60"}
-        hairColor={vip ? "#bf6c3f" : "#332924"}
-        phase={offset * 10}
-        walking
-      />
-      {vip ? (
-        <mesh position={[0, 2.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.13, 0.22, 5]} />
-          <meshBasicMaterial color="#e94f8a" />
-        </mesh>
-      ) : null}
-    </group>
+    <RigidBody
+      ref={body}
+      type="kinematicPosition"
+      colliders={false}
+      position={[state.code % 2 === 0 ? 0.9 : -0.9, 0, 8.15]}
+      enabledRotations={[false, false, false]}
+    >
+      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.95, 0]} />
+      <group ref={visual}>
+        <HumanFigure
+          position={[0, 0, 0]}
+          topColor={topColor}
+          bottomColor={vip ? "#713e78" : "#3d5b6d"}
+          skinColor={vip ? "#d8a077" : "#b97e60"}
+          hairColor={vip ? "#bf6c3f" : "#332924"}
+          phase={state.code * 0.73}
+          walking
+        />
+        <Html
+          position={[0, 2.3, 0]}
+          center
+          distanceFactor={7}
+          style={{ pointerEvents: "none" }}
+        >
+          <span className={`patient-world-tag ${vip ? "vip" : ""}`}>
+            {vip ? "VIP · " : ""}#{String(state.code).padStart(2, "0")}
+          </span>
+        </Html>
+      </group>
+    </RigidBody>
   );
+}
+
+function SimulationPatientFlow({
+  simulation,
+  elapsedMs,
+}: {
+  simulation: SimulationResult;
+  elapsedMs: number;
+}) {
+  const visiblePatients = useMemo(
+    () => deriveVisualPatientStates(simulation, elapsedMs),
+    [elapsedMs, simulation],
+  );
+
+  return visiblePatients.map((state) => (
+    <PatientActor key={state.id} state={state} />
+  ));
 }
 
 function XrayMachine() {
@@ -755,7 +910,13 @@ function WallWithDoor({ room }: { room: Room }) {
   );
 }
 
-function HospitalGreybox() {
+function HospitalGreybox({
+  simulation,
+  elapsedMs,
+}: {
+  simulation: SimulationResult;
+  elapsedMs: number;
+}) {
   return (
     <group>
       {/* One continuous structural slab prevents gaps between playable areas. */}
@@ -1003,45 +1164,18 @@ function HospitalGreybox() {
       <StorageCabinet position={[7.65, 0, -8.45]} color="#668f9a" />
       <ClinicalCart position={[12.1, 0, -2.2]} />
 
-      <HumanFigure position={[-7.4, 0, 6.1]} topColor="#e94f8a" phase={0.4} />
-      <HumanFigure position={[-10.4, 0, -3]} topColor="#4e9f6d" phase={1.2} />
-      <HumanFigure position={[-6.6, 0, -3]} topColor="#236a8d" phase={2.1} />
-      <HumanFigure position={[-1.5, 0, -3]} topColor="#236a8d" phase={3.2} />
-      <HumanFigure position={[5.4, 0, -3]} topColor="#6faaa0" phase={4.1} />
-      <HumanFigure position={[11.9, 0, -3.1]} topColor="#8fc2d6" phase={5.2} />
+      <StationWorker position={[-7.4, 0, 6.1]} topColor="#e94f8a" phase={0.4} />
+      <StationWorker position={[-10.4, 0, -3]} topColor="#4e9f6d" phase={1.2} />
+      <StationWorker position={[-6.6, 0, -3]} topColor="#236a8d" phase={2.1} />
+      <StationWorker position={[-1.5, 0, -3]} topColor="#236a8d" phase={3.2} />
+      <StationWorker position={[5.4, 0, -3]} topColor="#6faaa0" phase={4.1} />
+      <StationWorker
+        position={[11.9, 0, -3.1]}
+        topColor="#8fc2d6"
+        phase={5.2}
+      />
 
-      {/* Preview circulation: visible patients, still independent from the round clock. */}
-      <MovingPatient
-        path={[
-          [-1.8, 0, 7.8],
-          [-1.8, 0, 1.5],
-          [-11, 0, 1.5],
-          [-11, 0, -1.1],
-        ]}
-        offset={0.05}
-        topColor="#d98355"
-      />
-      <MovingPatient
-        path={[
-          [0.2, 0, 7.8],
-          [0.2, 0, 2.1],
-          [-5.5, 0, 2.1],
-          [-5.5, 0, -1.1],
-        ]}
-        offset={0.38}
-        topColor="#738caf"
-        vip
-      />
-      <MovingPatient
-        path={[
-          [1.8, 0, 7.8],
-          [1.8, 0, 1.1],
-          [10.5, 0, 1.1],
-          [10.5, 0, -1.1],
-        ]}
-        offset={0.7}
-        topColor="#b98755"
-      />
+      <SimulationPatientFlow simulation={simulation} elapsedMs={elapsedMs} />
 
       <RoomLabel position={[-5.5, 2.25, 5.3]}>ADMINISTRACIÓN</RoomLabel>
       <RoomLabel position={[0, 2.45, 1.6]}>PASILLO CLÍNICO</RoomLabel>
@@ -1050,7 +1184,12 @@ function HospitalGreybox() {
   );
 }
 
-export function HospitalScene({ turnSignal, stepSignal }: HospitalSceneProps) {
+export function HospitalScene({
+  turnSignal,
+  stepSignal,
+  simulation,
+  elapsedMs,
+}: HospitalSceneProps) {
   return (
     <>
       <color attach="background" args={["#67c6df"]} />
@@ -1069,7 +1208,7 @@ export function HospitalScene({ turnSignal, stepSignal }: HospitalSceneProps) {
       />
       <RetroSkyline />
       <Physics gravity={[0, 0, 0]}>
-        <HospitalGreybox />
+        <HospitalGreybox simulation={simulation} elapsedMs={elapsedMs} />
         <FirstPersonController
           turnSignal={turnSignal}
           stepSignal={stepSignal}
