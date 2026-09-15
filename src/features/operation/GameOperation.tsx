@@ -190,6 +190,20 @@ export default function GameOperation({
           </button>
           <span>WASD para moverte · mouse para mirar · Esc para liberar</span>
           <button
+            className="round-toggle-button"
+            type="button"
+            onClick={() => {
+              setRunning((current) => !current);
+            }}
+            disabled={elapsedMs >= simulation.durationMs}
+          >
+            {running
+              ? "Pausar reloj"
+              : elapsedMs > 0
+                ? "Reanudar reloj"
+                : "Iniciar reloj"}
+          </button>
+          <button
             className="finish-round-button"
             type="button"
             onClick={onComplete}
