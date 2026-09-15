@@ -10,25 +10,30 @@ type HospitalSceneProps = {
 
 type BoxProps = {
   position: [number, number, number];
-  scale: [number, number, number];
+  dimensions: [number, number, number];
   color: string;
 };
 
-function StaticBox({ position, scale, color }: BoxProps) {
+const WALL_COLOR = "#f4e9d8";
+const WALL_HEIGHT = 3.2;
+const WALL_THICKNESS = 0.24;
+const DOOR_WIDTH = 1.55;
+
+function StaticBox({ position, dimensions, color }: BoxProps) {
   return (
     <RigidBody type="fixed" colliders="cuboid">
-      <mesh position={position} scale={scale} castShadow receiveShadow>
-        <boxGeometry />
+      <mesh position={position} castShadow receiveShadow>
+        <boxGeometry args={dimensions} />
         <meshToonMaterial color={color} />
       </mesh>
     </RigidBody>
   );
 }
 
-function FloorZone({ position, scale, color }: BoxProps) {
+function FloorZone({ position, dimensions, color }: BoxProps) {
   return (
-    <mesh position={position} scale={scale} receiveShadow>
-      <boxGeometry />
+    <mesh position={position} receiveShadow>
+      <boxGeometry args={dimensions} />
       <meshToonMaterial color={color} />
     </mesh>
   );
@@ -63,21 +68,21 @@ function Desk({
   return (
     <group position={position}>
       <StaticBox
-        position={[0, 0.55, 0]}
-        scale={[1.4, 0.12, 0.55]}
+        position={[0, 0.66, 0]}
+        dimensions={[2.8, 0.2, 1.05]}
         color={color}
       />
       <StaticBox
-        position={[-1.15, 0.28, 0]}
-        scale={[0.12, 0.55, 0.45]}
+        position={[-1.15, 0.32, 0]}
+        dimensions={[0.2, 0.65, 0.85]}
         color={color}
       />
       <StaticBox
-        position={[1.15, 0.28, 0]}
-        scale={[0.12, 0.55, 0.45]}
+        position={[1.15, 0.32, 0]}
+        dimensions={[0.2, 0.65, 0.85]}
         color={color}
       />
-      <mesh position={[0, 0.9, 0]} rotation={[-0.15, 0, 0]} castShadow>
+      <mesh position={[0, 1.02, 0]} rotation={[-0.15, 0, 0]} castShadow>
         <boxGeometry args={[0.75, 0.5, 0.08]} />
         <meshToonMaterial color="#17252e" />
       </mesh>
@@ -116,10 +121,10 @@ function LowPolyPerson({
 
 function XrayMachine() {
   return (
-    <group position={[8.7, 0, -4.7]}>
+    <group position={[10.5, 0, -5.2]}>
       <StaticBox
         position={[0, 0.3, 0]}
-        scale={[1.4, 0.25, 0.7]}
+        dimensions={[2.8, 0.5, 1.4]}
         color="#d9e8e7"
       />
       <mesh position={[0, 1.6, 0]} rotation={[0, Math.PI / 2, 0]} castShadow>
@@ -128,9 +133,70 @@ function XrayMachine() {
       </mesh>
       <StaticBox
         position={[0, 0.95, 0.75]}
-        scale={[0.18, 0.8, 0.18]}
+        dimensions={[0.3, 1.6, 0.3]}
         color="#17252e"
       />
+    </group>
+  );
+}
+
+type Room = {
+  name: string;
+  minX: number;
+  maxX: number;
+  doorX: number;
+  floor: string;
+};
+
+const rooms: Room[] = [
+  {
+    name: "ENFERMERÍA",
+    minX: -13.88,
+    maxX: -8.12,
+    doorX: -11,
+    floor: "#75b98a",
+  },
+  {
+    name: "CONSULTORIO 1",
+    minX: -7.88,
+    maxX: -3.12,
+    doorX: -5.5,
+    floor: "#e9d57b",
+  },
+  {
+    name: "CONSULTORIO 2",
+    minX: -2.88,
+    maxX: 1.88,
+    doorX: -0.5,
+    floor: "#efc879",
+  },
+  { name: "LABORATORIO", minX: 2.12, maxX: 6.88, doorX: 4.5, floor: "#b9d8cd" },
+  { name: "RAYOS", minX: 7.12, maxX: 13.88, doorX: 10.5, floor: "#8fc2d6" },
+];
+
+function WallWithDoor({ room }: { room: Room }) {
+  const leftWidth = room.doorX - DOOR_WIDTH / 2 - room.minX;
+  const rightStart = room.doorX + DOOR_WIDTH / 2;
+  const rightWidth = room.maxX - rightStart;
+
+  return (
+    <group>
+      <StaticBox
+        position={[room.minX + leftWidth / 2, WALL_HEIGHT / 2, 0]}
+        dimensions={[leftWidth, WALL_HEIGHT, WALL_THICKNESS]}
+        color={WALL_COLOR}
+      />
+      <StaticBox
+        position={[rightStart + rightWidth / 2, WALL_HEIGHT / 2, 0]}
+        dimensions={[rightWidth, WALL_HEIGHT, WALL_THICKNESS]}
+        color={WALL_COLOR}
+      />
+      <StaticBox
+        position={[room.doorX, 2.86, 0]}
+        dimensions={[DOOR_WIDTH, 0.68, WALL_THICKNESS]}
+        color={WALL_COLOR}
+      />
+      <RoomLabel position={[room.doorX, 2.32, 0.16]}>{room.name}</RoomLabel>
     </group>
   );
 }
@@ -138,111 +204,92 @@ function XrayMachine() {
 function HospitalGreybox() {
   return (
     <group>
+      {/* One continuous structural slab prevents gaps between playable areas. */}
       <StaticBox
-        position={[0, -0.15, 0]}
-        scale={[14, 0.15, 9]}
+        position={[0, -0.14, 0]}
+        dimensions={[28, 0.28, 18]}
         color="#d6c6ac"
       />
 
+      {/* Lobby, corridor and rooms meet edge-to-edge over the structural slab. */}
       <FloorZone
-        position={[0, 0.015, 5.8]}
-        scale={[13.7, 0.03, 2.9]}
+        position={[0, 0.02, 4.5]}
+        dimensions={[27.5, 0.04, 8.75]}
         color="#e2a669"
       />
       <FloorZone
-        position={[-9.2, 0.02, 0]}
-        scale={[4.3, 0.035, 2.6]}
-        color="#75b98a"
-      />
-      <FloorZone
-        position={[-2.7, 0.02, 0]}
-        scale={[2, 0.035, 2.6]}
-        color="#e9d57b"
-      />
-      <FloorZone
-        position={[2.1, 0.02, 0]}
-        scale={[2, 0.035, 2.6]}
-        color="#efc879"
-      />
-      <FloorZone
-        position={[8.4, 0.02, -3.1]}
-        scale={[5.1, 0.035, 5.5]}
-        color="#8fc2d6"
-      />
-      <FloorZone
-        position={[-2.7, 0.02, -5.8]}
-        scale={[6.4, 0.035, 2.7]}
+        position={[0, 0.025, 1.5]}
+        dimensions={[27.5, 0.05, 2.75]}
         color="#f1e8d8"
       />
+      {rooms.map((room) => (
+        <FloorZone
+          key={room.name}
+          position={[(room.minX + room.maxX) / 2, 0.03, -4.5]}
+          dimensions={[room.maxX - room.minX, 0.06, 8.75]}
+          color={room.floor}
+        />
+      ))}
 
+      {/* Closed perimeter, with a single entrance in the lobby's south wall. */}
       <StaticBox
-        position={[0, 1.5, -9]}
-        scale={[14, 1.5, 0.15]}
-        color="#f4e9d8"
+        position={[0, WALL_HEIGHT / 2, -9]}
+        dimensions={[28, WALL_HEIGHT, WALL_THICKNESS]}
+        color={WALL_COLOR}
       />
       <StaticBox
-        position={[0, 1.5, 9]}
-        scale={[14, 1.5, 0.15]}
-        color="#f4e9d8"
+        position={[-7.7, WALL_HEIGHT / 2, 9]}
+        dimensions={[12.6, WALL_HEIGHT, WALL_THICKNESS]}
+        color={WALL_COLOR}
       />
       <StaticBox
-        position={[-14, 1.5, 0]}
-        scale={[0.15, 1.5, 9]}
-        color="#f4e9d8"
+        position={[7.7, WALL_HEIGHT / 2, 9]}
+        dimensions={[12.6, WALL_HEIGHT, WALL_THICKNESS]}
+        color={WALL_COLOR}
       />
       <StaticBox
-        position={[14, 1.5, 0]}
-        scale={[0.15, 1.5, 9]}
-        color="#f4e9d8"
-      />
-
-      <StaticBox
-        position={[-8.2, 1.35, 3]}
-        scale={[5.8, 1.35, 0.1]}
-        color="#f4e9d8"
+        position={[0, 2.9, 9]}
+        dimensions={[2.8, 0.6, WALL_THICKNESS]}
+        color={WALL_COLOR}
       />
       <StaticBox
-        position={[8.2, 1.35, 3]}
-        scale={[5.8, 1.35, 0.1]}
-        color="#f4e9d8"
+        position={[-14, WALL_HEIGHT / 2, 0]}
+        dimensions={[WALL_THICKNESS, WALL_HEIGHT, 18]}
+        color={WALL_COLOR}
       />
       <StaticBox
-        position={[-5, 1.35, -0.5]}
-        scale={[0.1, 1.35, 3.5]}
-        color="#f4e9d8"
-      />
-      <StaticBox
-        position={[-5, 1.35, -7.2]}
-        scale={[0.1, 1.35, 1.8]}
-        color="#f4e9d8"
-      />
-      <StaticBox
-        position={[4.6, 1.35, 0.6]}
-        scale={[0.1, 1.35, 2.4]}
-        color="#f4e9d8"
-      />
-      <StaticBox
-        position={[4.6, 1.35, -6.8]}
-        scale={[0.1, 1.35, 2.2]}
-        color="#f4e9d8"
+        position={[14, WALL_HEIGHT / 2, 0]}
+        dimensions={[WALL_THICKNESS, WALL_HEIGHT, 18]}
+        color={WALL_COLOR}
       />
 
-      <Desk position={[-5.5, 0, 5.3]} color="#d96c4b" />
-      <Desk position={[-9.2, 0, -0.3]} color="#4e9f6d" />
-      <Desk position={[-2.6, 0, -0.3]} color="#d8b44b" />
-      <Desk position={[2.1, 0, -0.3]} color="#d8a44b" />
+      {/* The corridor gives every clinical room its own visible doorway. */}
+      {rooms.map((room) => (
+        <WallWithDoor key={room.name} room={room} />
+      ))}
+      {[-8, -3, 2, 7].map((x) => (
+        <StaticBox
+          key={x}
+          position={[x, WALL_HEIGHT / 2, -4.5]}
+          dimensions={[WALL_THICKNESS, WALL_HEIGHT, 9]}
+          color={WALL_COLOR}
+        />
+      ))}
+
+      <Desk position={[-5.5, 0, 5.1]} color="#d96c4b" />
+      <Desk position={[-11, 0, -4.3]} color="#4e9f6d" />
+      <Desk position={[-5.5, 0, -4.3]} color="#d8b44b" />
+      <Desk position={[-0.5, 0, -4.3]} color="#d8a44b" />
+      <Desk position={[4.5, 0, -4.3]} color="#6faaa0" />
       <XrayMachine />
 
-      <LowPolyPerson position={[-7.4, 0, 6.2]} color="#e94f8a" />
-      <LowPolyPerson position={[-8.2, 0, 0.8]} color="#4e9f6d" />
-      <LowPolyPerson position={[-1.8, 0, 0.8]} color="#236a8d" />
+      <LowPolyPerson position={[-7.4, 0, 6.1]} color="#e94f8a" />
+      <LowPolyPerson position={[-11.8, 0, -3]} color="#4e9f6d" />
+      <LowPolyPerson position={[-6.2, 0, -3]} color="#236a8d" />
 
-      <RoomLabel position={[-5.5, 2.1, 4.9]}>ADMINISTRACIÓN</RoomLabel>
-      <RoomLabel position={[-9.2, 2.1, -0.5]}>ENFERMERÍA</RoomLabel>
-      <RoomLabel position={[-2.6, 2.1, -0.5]}>CONSULTORIO 1</RoomLabel>
-      <RoomLabel position={[2.1, 2.1, -0.5]}>CONSULTORIO 2</RoomLabel>
-      <RoomLabel position={[8.5, 2.3, -5]}>RAYOS</RoomLabel>
-      <RoomLabel position={[-1, 2.2, -6]}>CIRCULACIÓN</RoomLabel>
+      <RoomLabel position={[-5.5, 2.25, 5.3]}>ADMINISTRACIÓN</RoomLabel>
+      <RoomLabel position={[0, 2.45, 1.6]}>PASILLO CLÍNICO</RoomLabel>
+      <RoomLabel position={[0, 2.25, 8.65]}>ENTRADA</RoomLabel>
     </group>
   );
 }
@@ -251,7 +298,7 @@ export function HospitalScene({ turnSignal, stepSignal }: HospitalSceneProps) {
   return (
     <>
       <color attach="background" args={["#73cfe6"]} />
-      <fog attach="fog" args={["#73cfe6", 16, 39]} />
+      <fog attach="fog" args={["#73cfe6", 18, 42]} />
       <hemisphereLight args={["#fff3cf", "#356f58", 1.8]} />
       <directionalLight
         position={[-8, 14, 8]}
