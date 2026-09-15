@@ -74,6 +74,11 @@ describe("simulation engine", () => {
         (patient) => patient.requiresXray && patient.status === "pending",
       ),
     ).toBe(true);
+    for (const patient of result.patients) {
+      expect(patient.totalServiceMs).toBeLessThanOrEqual(
+        result.durationMs - patient.arrivedAtMs,
+      );
+    }
   });
 
   it("uses the legacy divisibility rules for patient attributes", () => {

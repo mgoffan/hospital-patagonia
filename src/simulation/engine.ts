@@ -237,13 +237,14 @@ export function runSimulation(
           maximumTicks,
         ) * 100;
       const waitMs = atMs - job.enqueuedAtMs;
-      patient.totalWaitMs += waitMs;
-      patient.totalServiceMs += durationMs;
-      station.totalWaitMs += waitMs;
-      station.busyTimeMs += Math.max(
+      const activeDurationMs = Math.max(
         0,
         Math.min(durationMs, ROUND_DURATION_MS - atMs),
       );
+      patient.totalWaitMs += waitMs;
+      patient.totalServiceMs += activeDurationMs;
+      station.totalWaitMs += waitMs;
+      station.busyTimeMs += activeDurationMs;
       station.busySlots.add(freeSlot);
 
       recordEvent({
