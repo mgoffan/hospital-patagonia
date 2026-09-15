@@ -114,3 +114,14 @@ Sin alterar la planta aprobada, el greybox recibió una primera capa artística 
 - cielo saturado, sol facetado, montañas low-poly y tratamiento sutil de pantalla.
 
 Los elementos se construyen con geometría procedural liviana. Las fotografías originales continúan fuera del repositorio público y sólo se usan como referencia.
+
+### Segunda revisión visual
+
+La primera capa M3 fue considerada todavía demasiado primitiva, con trazos excesivos y baja densidad general. La iteración siguiente:
+
+- elimina los contornos automáticos de arquitectura y mobiliario;
+- reemplaza superficies planas por un material pintado original y tintable;
+- suaviza las líneas de las baldosas y la señalética;
+- agrega cielorraso, luminarias y luz interior localizada;
+- suma ventanas, armarios, carros clínicos, vegetación y personal;
+- usa cantos suavemente redondeados en los props sin alterar los colliders estructurales.

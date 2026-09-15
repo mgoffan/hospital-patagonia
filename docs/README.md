@@ -27,6 +27,7 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 12. [Dirección de arte](./art-direction.md)
 13. [Motor de simulación implementado](./simulation-engine.md)
 14. [Greybox 3D first-person](./greybox-3d.md)
+15. [Assets generados](./generated-assets.md)
 
 ## Estado
 
