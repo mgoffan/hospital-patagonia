@@ -46,7 +46,7 @@ describe("App", () => {
     ).toBeInTheDocument();
     await user.click(
       screen.getByRole("button", {
-        name: "Finalizar ronda y ver resultados",
+        name: "Saltar al resultado",
       }),
     );
 

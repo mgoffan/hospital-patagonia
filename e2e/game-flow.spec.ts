@@ -23,10 +23,19 @@ test("configures, enters the greybox and reviews results", async ({ page }) => {
   await expect(page.locator(".world-label").first()).toBeVisible({
     timeout: 15_000,
   });
+  await page.getByRole("button", { name: "Entrar e iniciar ronda" }).click();
+  await expect(page.locator(".patient-world-tag").first()).toBeVisible({
+    timeout: 3_000,
+  });
+  await expect(page.locator(".operation-clock strong")).not.toHaveText("05:00");
+  await page.evaluate(() => {
+    if (document.pointerLockElement) document.exitPointerLock();
+  });
+  await expect
+    .poll(() => page.evaluate(() => document.pointerLockElement === null))
+    .toBe(true);
 
-  await page
-    .getByRole("button", { name: "Finalizar ronda y ver resultados" })
-    .click();
+  await page.getByRole("button", { name: "Saltar al resultado" }).click();
   await expect(
     page.getByRole("heading", { name: "Así funcionó tu hospital." }),
   ).toBeVisible();
