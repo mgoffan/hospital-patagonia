@@ -6,6 +6,7 @@ export type VisualPatientState = {
   kind: "standard" | "vip";
   requiresXray: boolean;
   checkedIn: boolean;
+  isLate: boolean;
   stationId: StationId;
   activity: "queued" | "inService" | "departing";
   queueIndex: number;
@@ -30,6 +31,7 @@ function applyEvent(
       kind: current.kind,
       requiresXray: current.requiresXray,
       checkedIn: current.checkedIn,
+      isLate: current.isLate,
       stationId: current.stationId,
       activity: "departing",
       queueIndex: 0,
@@ -58,6 +60,7 @@ function applyEvent(
       kind: current.kind,
       requiresXray: current.requiresXray,
       checkedIn: current.checkedIn,
+      isLate: current.isLate,
       stationId: event.stationId,
       activity: "queued",
       queueIndex: 0,
@@ -73,6 +76,7 @@ function applyEvent(
       kind: current.kind,
       requiresXray: current.requiresXray,
       checkedIn: current.checkedIn,
+      isLate: current.isLate,
       stationId: event.stationId,
       activity: "inService",
       queueIndex: 0,
@@ -105,6 +109,7 @@ export function deriveVisualPatientStates(
         kind: patient.kind,
         requiresXray: patient.requiresXray,
         checkedIn: false,
+        isLate: false,
         stationId: "administration",
         activity: "queued",
         queueIndex: 0,
@@ -153,6 +158,8 @@ export function deriveVisualPatientStates(
       kind: state.kind,
       requiresXray: state.requiresXray,
       checkedIn: state.checkedIn,
+      isLate:
+        elapsedMs - (patients.get(state.id)?.arrivedAtMs ?? elapsedMs) > 60_000,
       stationId: state.stationId,
       activity: state.activity,
       queueIndex: state.queueIndex,

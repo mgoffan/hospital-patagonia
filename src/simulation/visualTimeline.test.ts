@@ -62,6 +62,28 @@ describe("visual simulation timeline", () => {
     ).toMatchObject({ checkedIn: true });
   });
 
+  it("marks an unresolved patient late after the webapp threshold", () => {
+    const highConfiguration = createRoundConfiguration(
+      { ...DEFAULT_CONFIGURATION, demandId: "high" },
+      {
+        id: "late-visual-test",
+        createdAt: "2026-09-15T00:00:00.000Z",
+      },
+    );
+    const highSimulation = runSimulation(highConfiguration);
+    const latePatient = highSimulation.patients.find(
+      (patient) => patient.status === "late",
+    );
+    expect(latePatient).toBeDefined();
+    const visible = deriveVisualPatientStates(
+      highSimulation,
+      (latePatient?.arrivedAtMs ?? 0) + 60_001,
+    );
+    expect(
+      visible.find((patient) => patient.id === latePatient?.id),
+    ).toMatchObject({ isLate: true });
+  });
+
   it("removes a discharged patient after the visible exit window", () => {
     const discharge = simulation.events.find(
       (event) => event.type === "patientDischarged",
