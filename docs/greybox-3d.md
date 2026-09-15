@@ -125,3 +125,14 @@ La primera capa M3 fue considerada todavía demasiado primitiva, con trazos exce
 - agrega cielorraso, luminarias y luz interior localizada;
 - suma ventanas, armarios, carros clínicos, vegetación y personal;
 - usa cantos suavemente redondeados en los props sin alterar los colliders estructurales.
+
+### Flujo visual de pacientes M4
+
+La circulación ya no es una decoración independiente del motor:
+
+- el reloj corre en tiempo real para que el desplazamiento físico alcance cada evento;
+- las colas clínicas ocupan la sala de espera y los servicios llevan al paciente por el pasillo y la puerta correspondiente;
+- el alta conserva al personaje durante su caminata hacia la salida;
+- el QR numérico aparece en frente y espalda de la remera;
+- después de Administración se colocan pulseras verdes, amarillas, violetas o rosas para distinguir normal/VIP y con/sin análisis;
+- cintas de piso coral, verde, amarilla, naranja y azul señalan recepción, Enfermería, consultorios y Rayos.

@@ -79,8 +79,10 @@ Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y lon
 - espera o servicio;
 - posición dentro de la cola;
 - slot de recurso asignado.
+- registro completado y color de pulsera;
+- estado de salida posterior al alta.
 
-El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla y verificar por tests que un paciente no aparece antes de llegar ni permanece después del alta.
+El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla, verificar que nadie aparezca antes de llegar y mantener el alta visible mientras el paciente abandona el edificio.
 
 ## Resultados
 
