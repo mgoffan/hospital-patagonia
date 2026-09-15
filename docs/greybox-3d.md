@@ -97,3 +97,20 @@ La primera revisión confirmó escala general, cámara, colisiones y carga, pero
 - cinco salas independientes al norte del pasillo;
 - un vano de puerta visible y transitable por sala;
 - muros divisorios completos desde el pasillo hasta el fondo.
+
+La distribución, las puertas, el pasillo, la navegación, la cámara, las colisiones y el tiempo de carga fueron aprobados en la revisión siguiente. La incidencia atribuida inicialmente a la tecla `D` provenía de la extensión Vimium y no del controlador.
+
+## Primer pase visual M3
+
+Sin alterar la planta aprobada, el greybox recibió una primera capa artística basada en las maquetas fotográficas:
+
+- retícula de baldosas clínicas, alfombra azul y sectores de madera;
+- escritorios y camillas en ambos consultorios;
+- dos puestos y mesada perimetral en Enfermería;
+- islas de trabajo y mesada lateral en Laboratorio;
+- camilla, equipo y guardado en Radiología;
+- recepción, seis asientos de espera, afiche y vegetación;
+- puertas codificadas por sala, zócalos cálidos y contornos oscuros;
+- cielo saturado, sol facetado, montañas low-poly y tratamiento sutil de pantalla.
+
+Los elementos se construyen con geometría procedural liviana. Las fotografías originales continúan fuera del repositorio público y sólo se usan como referencia.

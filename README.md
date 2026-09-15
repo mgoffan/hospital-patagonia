@@ -2,13 +2,13 @@
 
 Webapp educativa first-person para explorar Gestión de Operaciones en Servicios mediante la simulación de un hospital de emergencias.
 
-El proyecto se encuentra en pre-alpha. El corte actual implementa configuración, simulación determinista de cinco minutos y debrief operativo/P&L.
+El proyecto se encuentra en pre-alpha. El corte actual implementa configuración, un prototipo visual 3D, simulación determinista de cinco minutos y debrief operativo/P&L.
 
 ## Corte jugable actual
 
 1. Configurar demanda, rol y dotación.
 2. Confirmar el snapshot económico.
-3. Recorrer el greybox 3D del hospital en first-person.
+3. Recorrer el prototipo visual low-poly del hospital en first-person.
 4. Ejecutar una ronda headless con colas y capacidad.
 5. Analizar pacientes, cuello de botella, utilización y P&L.
 
