@@ -5,8 +5,9 @@ export type VisualPatientState = {
   code: number;
   kind: "standard" | "vip";
   requiresXray: boolean;
+  checkedIn: boolean;
   stationId: StationId;
-  activity: "queued" | "inService";
+  activity: "queued" | "inService" | "departing";
   queueIndex: number;
   resourceSlot?: number;
 };
@@ -22,8 +23,31 @@ function applyEvent(
   if (!event.patientId) return;
   const current = states.get(event.patientId);
 
-  if (event.type === "patientDischarged") {
-    states.delete(event.patientId);
+  if (event.type === "patientDischarged" && current) {
+    states.set(event.patientId, {
+      id: current.id,
+      code: current.code,
+      kind: current.kind,
+      requiresXray: current.requiresXray,
+      checkedIn: current.checkedIn,
+      stationId: current.stationId,
+      activity: "departing",
+      queueIndex: 0,
+      enteredStateAtMs: event.atMs,
+    });
+    return;
+  }
+
+  if (
+    event.type === "serviceCompleted" &&
+    event.stationId === "administration" &&
+    current
+  ) {
+    states.set(event.patientId, {
+      ...current,
+      checkedIn: true,
+      enteredStateAtMs: event.atMs,
+    });
     return;
   }
 
@@ -33,6 +57,7 @@ function applyEvent(
       code: current.code,
       kind: current.kind,
       requiresXray: current.requiresXray,
+      checkedIn: current.checkedIn,
       stationId: event.stationId,
       activity: "queued",
       queueIndex: 0,
@@ -47,6 +72,7 @@ function applyEvent(
       code: current.code,
       kind: current.kind,
       requiresXray: current.requiresXray,
+      checkedIn: current.checkedIn,
       stationId: event.stationId,
       activity: "inService",
       queueIndex: 0,
@@ -78,6 +104,7 @@ export function deriveVisualPatientStates(
         code: patient.code,
         kind: patient.kind,
         requiresXray: patient.requiresXray,
+        checkedIn: false,
         stationId: "administration",
         activity: "queued",
         queueIndex: 0,
@@ -95,6 +122,15 @@ export function deriveVisualPatientStates(
     const queue = queueGroups.get(state.stationId) ?? [];
     queue.push(state);
     queueGroups.set(state.stationId, queue);
+  }
+
+  for (const [patientId, state] of states) {
+    if (
+      state.activity === "departing" &&
+      elapsedMs - state.enteredStateAtMs > 20_000
+    ) {
+      states.delete(patientId);
+    }
   }
 
   for (const queue of queueGroups.values()) {
@@ -116,6 +152,7 @@ export function deriveVisualPatientStates(
       code: state.code,
       kind: state.kind,
       requiresXray: state.requiresXray,
+      checkedIn: state.checkedIn,
       stationId: state.stationId,
       activity: state.activity,
       queueIndex: state.queueIndex,

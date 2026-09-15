@@ -31,15 +31,46 @@ describe("visual simulation timeline", () => {
     expect(visible[0]).toMatchObject({
       id: "patient-01",
       stationId: "administration",
+      checkedIn: false,
     });
   });
 
-  it("removes discharged patients from the active floor", () => {
+  it("keeps discharged patients visible while they walk out", () => {
     const discharge = simulation.events.find(
       (event) => event.type === "patientDischarged",
     );
     expect(discharge?.patientId).toBeDefined();
     const visible = deriveVisualPatientStates(simulation, discharge?.atMs ?? 0);
+    expect(
+      visible.find((patient) => patient.id === discharge?.patientId),
+    ).toMatchObject({ activity: "departing", checkedIn: true });
+  });
+
+  it("adds the clinical wristband after reception", () => {
+    const receptionComplete = simulation.events.find(
+      (event) =>
+        event.type === "serviceCompleted" &&
+        event.stationId === "administration",
+    );
+    expect(receptionComplete?.patientId).toBeDefined();
+    const visible = deriveVisualPatientStates(
+      simulation,
+      receptionComplete?.atMs ?? 0,
+    );
+    expect(
+      visible.find((patient) => patient.id === receptionComplete?.patientId),
+    ).toMatchObject({ checkedIn: true });
+  });
+
+  it("removes a discharged patient after the visible exit window", () => {
+    const discharge = simulation.events.find(
+      (event) => event.type === "patientDischarged",
+    );
+    expect(discharge?.patientId).toBeDefined();
+    const visible = deriveVisualPatientStates(
+      simulation,
+      (discharge?.atMs ?? 0) + 20_001,
+    );
     expect(visible.some((patient) => patient.id === discharge?.patientId)).toBe(
       false,
     );
