@@ -26,6 +26,7 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 11. [Economía y resultados](./economics-and-results.md)
 12. [Dirección de arte](./art-direction.md)
 13. [Motor de simulación implementado](./simulation-engine.md)
+14. [Greybox 3D first-person](./greybox-3d.md)
 
 ## Estado
 
@@ -36,8 +37,8 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 - Inspección de los programas Scratch de Enfermería, Médico y Rayos: completa.
 - Lectura de los cinco QR visibles: completa.
 - Especificación y plan de implementación: completos con supuestos provisionales explícitos.
-- Implementación: configuración, motor determinista y primer debrief operativos.
-- Próxima etapa: greybox 3D e interacción first-person conectada a comandos del motor.
+- Implementación: configuración, motor determinista, greybox first-person y primer debrief operativos.
+- Próxima etapa: interacción contextual, pacientes y coworkers conectados a comandos del motor.
 
 ## Principio rector
 

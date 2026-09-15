@@ -8,10 +8,11 @@ El proyecto se encuentra en pre-alpha. El corte actual implementa configuración
 
 1. Configurar demanda, rol y dotación.
 2. Confirmar el snapshot económico.
-3. Ejecutar una ronda headless con colas y capacidad.
-4. Analizar pacientes, cuello de botella, utilización y P&L.
+3. Recorrer el greybox 3D del hospital en first-person.
+4. Ejecutar una ronda headless con colas y capacidad.
+5. Analizar pacientes, cuello de botella, utilización y P&L.
 
-El mundo first-person es el siguiente hito; la simulación y el render permanecen desacoplados.
+El siguiente hito conecta pacientes y tareas interactivas al mundo. La simulación y el render permanecen desacoplados.
 
 ## Desarrollo
 
@@ -23,6 +24,7 @@ npm run dev
 ```
 
 `npm run check` ejecuta formato, lint, tipos, tests y build de producción.
+`npm run test:e2e` levanta el build y valida el flujo completo en Google Chrome.
 
 ## Documentación
 

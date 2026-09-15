@@ -6,5 +6,6 @@
 | [0002](./0002-deterministic-simulation-core.md) | aceptada | motor determinista separado del renderer |
 | [0003](./0003-single-player-first.md) | aceptada | single-player con coworkers IA antes de multijugador |
 | [0004](./0004-progressive-webgpu.md) | aceptada | WebGL 2 baseline y WebGPU progresivo |
+| [0005](./0005-compatible-3d-runtime.md) | aceptada | runtime 3D compatible y cargado bajo demanda |
 
 Los ADR registran decisiones que condicionan el sistema. Cambiar una decisión aceptada requiere un ADR nuevo que la reemplace; no se reescribe retroactivamente su contexto.
