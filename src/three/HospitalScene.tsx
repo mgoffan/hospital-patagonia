@@ -1,5 +1,8 @@
 import { Edges, Html, RoundedBox, useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { Physics, RigidBody } from "@react-three/rapier";
+import { useRef } from "react";
+import { Group, Vector3 } from "three";
 
 import { FirstPersonController } from "./FirstPersonController";
 
@@ -442,33 +445,185 @@ function OpenDoor({
   );
 }
 
-function LowPolyPerson({
+function HumanFigure({
   position,
-  color,
+  topColor,
+  bottomColor = "#35536c",
+  skinColor = "#c98f6b",
+  hairColor = "#3a2c27",
+  phase = 0,
+  walking = false,
 }: {
   position: [number, number, number];
-  color: string;
+  topColor: string;
+  bottomColor?: string;
+  skinColor?: string;
+  hairColor?: string;
+  phase?: number;
+  walking?: boolean;
 }) {
+  const root = useRef<Group>(null);
+  const leftArm = useRef<Group>(null);
+  const rightArm = useRef<Group>(null);
+  const leftLeg = useRef<Group>(null);
+  const rightLeg = useRef<Group>(null);
+
+  useFrame(({ clock }) => {
+    const time = clock.elapsedTime * (walking ? 6 : 1.6) + phase;
+    const stride = walking ? Math.sin(time) * 0.52 : Math.sin(time) * 0.035;
+    if (root.current)
+      root.current.position.y =
+        position[1] + Math.abs(Math.sin(time)) * (walking ? 0.035 : 0.008);
+    if (leftArm.current) leftArm.current.rotation.x = stride;
+    if (rightArm.current) rightArm.current.rotation.x = -stride;
+    if (leftLeg.current) leftLeg.current.rotation.x = -stride * 0.72;
+    if (rightLeg.current) rightLeg.current.rotation.x = stride * 0.72;
+  });
+
   return (
-    <group position={position}>
-      <mesh position={[0, 1.25, 0]} castShadow>
-        <icosahedronGeometry args={[0.25, 1]} />
-        <meshToonMaterial color="#d9a779" />
-        <Edges color="#33434a" />
+    <group ref={root} position={position}>
+      <RoundedBox
+        args={[0.62, 0.72, 0.34]}
+        position={[0, 1.13, 0]}
+        radius={0.16}
+        smoothness={2}
+        castShadow
+      >
+        <PaintedMaterial color={topColor} />
+      </RoundedBox>
+      <RoundedBox
+        args={[0.52, 0.24, 0.32]}
+        position={[0, 0.72, 0]}
+        radius={0.08}
+        smoothness={2}
+        castShadow
+      >
+        <PaintedMaterial color={bottomColor} />
+      </RoundedBox>
+      <mesh position={[0, 1.55, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.11, 0.2, 8]} />
+        <meshToonMaterial color={skinColor} />
       </mesh>
-      <mesh position={[0, 0.72, 0]} castShadow>
-        <coneGeometry args={[0.38, 0.9, 6]} />
-        <meshToonMaterial color={color} />
-        <Edges color="#33434a" />
-      </mesh>
-      <mesh position={[-0.16, 0.18, 0]} castShadow>
-        <boxGeometry args={[0.13, 0.55, 0.16]} />
-        <meshToonMaterial color="#17252e" />
-      </mesh>
-      <mesh position={[0.16, 0.18, 0]} castShadow>
-        <boxGeometry args={[0.13, 0.55, 0.16]} />
-        <meshToonMaterial color="#17252e" />
-      </mesh>
+      <group position={[0, 1.83, 0]}>
+        <mesh castShadow scale={[0.82, 1, 0.78]}>
+          <icosahedronGeometry args={[0.3, 2]} />
+          <meshToonMaterial color={skinColor} />
+        </mesh>
+        <mesh position={[0, 0.19, -0.01]} scale={[0.84, 0.42, 0.8]} castShadow>
+          <sphereGeometry args={[0.3, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshToonMaterial color={hairColor} />
+        </mesh>
+        <mesh position={[0, 0, 0.27]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.055, 0.13, 6]} />
+          <meshToonMaterial color={skinColor} />
+        </mesh>
+      </group>
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={`arm-${String(side)}`}
+          ref={side < 0 ? leftArm : rightArm}
+          position={[side * 0.39, 1.34, 0]}
+        >
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <capsuleGeometry args={[0.105, 0.44, 4, 8]} />
+            <meshToonMaterial color={topColor} />
+          </mesh>
+          <mesh position={[0, -0.6, 0]} castShadow>
+            <capsuleGeometry args={[0.085, 0.25, 4, 8]} />
+            <meshToonMaterial color={skinColor} />
+          </mesh>
+          <mesh position={[0, -0.81, 0]} castShadow>
+            <sphereGeometry args={[0.115, 8, 6]} />
+            <meshToonMaterial color={skinColor} />
+          </mesh>
+        </group>
+      ))}
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={`leg-${String(side)}`}
+          ref={side < 0 ? leftLeg : rightLeg}
+          position={[side * 0.17, 0.66, 0]}
+        >
+          <mesh position={[0, -0.32, 0]} castShadow>
+            <capsuleGeometry args={[0.13, 0.48, 4, 8]} />
+            <meshToonMaterial color={bottomColor} />
+          </mesh>
+          <mesh position={[0, -0.72, 0]} castShadow>
+            <capsuleGeometry args={[0.105, 0.29, 4, 8]} />
+            <meshToonMaterial color={skinColor} />
+          </mesh>
+          <RoundedBox
+            args={[0.25, 0.13, 0.43]}
+            position={[0, -0.94, 0.08]}
+            radius={0.05}
+            smoothness={2}
+            castShadow
+          >
+            <meshToonMaterial color="#25343d" />
+          </RoundedBox>
+        </group>
+      ))}
+      <RoundedBox
+        args={[0.2, 0.27, 0.035]}
+        position={[0.17, 1.25, 0.19]}
+        radius={0.025}
+        smoothness={2}
+      >
+        <meshToonMaterial color="#f4e9d8" />
+      </RoundedBox>
+    </group>
+  );
+}
+
+function MovingPatient({
+  path,
+  offset,
+  topColor,
+  vip = false,
+}: {
+  path: [number, number, number][];
+  offset: number;
+  topColor: string;
+  vip?: boolean;
+}) {
+  const mover = useRef<Group>(null);
+  const from = useRef(new Vector3());
+  const to = useRef(new Vector3());
+
+  useFrame(({ clock }) => {
+    const group = mover.current;
+    if (!group || path.length < 2) return;
+    const progress = (clock.elapsedTime * 0.12 + offset) % 1;
+    const scaled = progress * (path.length - 1);
+    const segment = Math.min(Math.floor(scaled), path.length - 2);
+    const segmentProgress = scaled - segment;
+    const start = path[segment];
+    const end = path[segment + 1];
+    if (!start || !end) return;
+
+    from.current.set(...start);
+    to.current.set(...end);
+    group.position.lerpVectors(from.current, to.current, segmentProgress);
+    group.rotation.y = Math.atan2(end[0] - start[0], end[2] - start[2]);
+  });
+
+  return (
+    <group ref={mover}>
+      <HumanFigure
+        position={[0, 0, 0]}
+        topColor={topColor}
+        bottomColor={vip ? "#713e78" : "#3d5b6d"}
+        skinColor={vip ? "#d8a077" : "#b97e60"}
+        hairColor={vip ? "#bf6c3f" : "#332924"}
+        phase={offset * 10}
+        walking
+      />
+      {vip ? (
+        <mesh position={[0, 2.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.13, 0.22, 5]} />
+          <meshBasicMaterial color="#e94f8a" />
+        </mesh>
+      ) : null}
     </group>
   );
 }
@@ -848,12 +1003,45 @@ function HospitalGreybox() {
       <StorageCabinet position={[7.65, 0, -8.45]} color="#668f9a" />
       <ClinicalCart position={[12.1, 0, -2.2]} />
 
-      <LowPolyPerson position={[-7.4, 0, 6.1]} color="#e94f8a" />
-      <LowPolyPerson position={[-10.4, 0, -3]} color="#4e9f6d" />
-      <LowPolyPerson position={[-6.6, 0, -3]} color="#236a8d" />
-      <LowPolyPerson position={[-1.5, 0, -3]} color="#236a8d" />
-      <LowPolyPerson position={[5.4, 0, -3]} color="#6faaa0" />
-      <LowPolyPerson position={[11.9, 0, -3.1]} color="#8fc2d6" />
+      <HumanFigure position={[-7.4, 0, 6.1]} topColor="#e94f8a" phase={0.4} />
+      <HumanFigure position={[-10.4, 0, -3]} topColor="#4e9f6d" phase={1.2} />
+      <HumanFigure position={[-6.6, 0, -3]} topColor="#236a8d" phase={2.1} />
+      <HumanFigure position={[-1.5, 0, -3]} topColor="#236a8d" phase={3.2} />
+      <HumanFigure position={[5.4, 0, -3]} topColor="#6faaa0" phase={4.1} />
+      <HumanFigure position={[11.9, 0, -3.1]} topColor="#8fc2d6" phase={5.2} />
+
+      {/* Preview circulation: visible patients, still independent from the round clock. */}
+      <MovingPatient
+        path={[
+          [-1.8, 0, 7.8],
+          [-1.8, 0, 1.5],
+          [-11, 0, 1.5],
+          [-11, 0, -1.1],
+        ]}
+        offset={0.05}
+        topColor="#d98355"
+      />
+      <MovingPatient
+        path={[
+          [0.2, 0, 7.8],
+          [0.2, 0, 2.1],
+          [-5.5, 0, 2.1],
+          [-5.5, 0, -1.1],
+        ]}
+        offset={0.38}
+        topColor="#738caf"
+        vip
+      />
+      <MovingPatient
+        path={[
+          [1.8, 0, 7.8],
+          [1.8, 0, 1.1],
+          [10.5, 0, 1.1],
+          [10.5, 0, -1.1],
+        ]}
+        offset={0.7}
+        topColor="#b98755"
+      />
 
       <RoomLabel position={[-5.5, 2.25, 5.3]}>ADMINISTRACIÓN</RoomLabel>
       <RoomLabel position={[0, 2.45, 1.6]}>PASILLO CLÍNICO</RoomLabel>
