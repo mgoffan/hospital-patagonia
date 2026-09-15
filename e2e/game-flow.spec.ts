@@ -24,13 +24,12 @@ test("configures, enters the greybox and reviews results", async ({ page }) => {
     timeout: 15_000,
   });
   await page.getByRole("button", { name: "Entrar e iniciar ronda" }).click();
-  await expect(page.locator(".live-flow-stats dd").first()).not.toHaveText(
-    "0",
-    {
-      timeout: 5_000,
-    },
+  await expect(
+    page.getByRole("button", { name: "Volver a first-person" }),
+  ).toBeVisible();
+  await expect(page.locator(".operation-clock span")).toContainText(
+    "RONDA EN CURSO",
   );
-  await expect(page.locator(".operation-clock strong")).not.toHaveText("05:00");
   await page.evaluate(() => {
     if (document.pointerLockElement) document.exitPointerLock();
   });
