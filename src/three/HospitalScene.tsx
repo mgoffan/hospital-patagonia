@@ -1,4 +1,4 @@
-import { Html } from "@react-three/drei";
+import { Edges, Html } from "@react-three/drei";
 import { Physics, RigidBody } from "@react-three/rapier";
 
 import { FirstPersonController } from "./FirstPersonController";
@@ -14,6 +14,11 @@ type BoxProps = {
   color: string;
 };
 
+type DecorativeBoxProps = BoxProps & {
+  rotation?: [number, number, number];
+  outline?: string;
+};
+
 const WALL_COLOR = "#f4e9d8";
 const WALL_HEIGHT = 3.2;
 const WALL_THICKNESS = 0.24;
@@ -25,8 +30,47 @@ function StaticBox({ position, dimensions, color }: BoxProps) {
       <mesh position={position} castShadow receiveShadow>
         <boxGeometry args={dimensions} />
         <meshToonMaterial color={color} />
+        <Edges color="#33434a" threshold={18} />
       </mesh>
     </RigidBody>
+  );
+}
+
+function DecorativeBox({
+  position,
+  dimensions,
+  color,
+  rotation = [0, 0, 0],
+  outline = "#33434a",
+}: DecorativeBoxProps) {
+  return (
+    <mesh position={position} rotation={rotation} castShadow receiveShadow>
+      <boxGeometry args={dimensions} />
+      <meshToonMaterial color={color} />
+      <Edges color={outline} threshold={18} />
+    </mesh>
+  );
+}
+
+function FloorGrid({
+  position,
+  width,
+  depth,
+  divisions = 12,
+  color = "#67808a",
+}: {
+  position: [number, number, number];
+  width: number;
+  depth: number;
+  divisions?: number;
+  color?: string;
+}) {
+  return (
+    <gridHelper
+      args={[10, divisions, color, color]}
+      position={position}
+      scale={[width / 10, 1, depth / 10]}
+    />
   );
 }
 
@@ -85,6 +129,202 @@ function Desk({
       <mesh position={[0, 1.02, 0]} rotation={[-0.15, 0, 0]} castShadow>
         <boxGeometry args={[0.75, 0.5, 0.08]} />
         <meshToonMaterial color="#17252e" />
+        <Edges color="#0b1419" />
+      </mesh>
+      <DecorativeBox
+        position={[0, 0.76, -0.18]}
+        dimensions={[0.7, 0.04, 0.28]}
+        color="#d9e8e7"
+      />
+    </group>
+  );
+}
+
+function Chair({
+  position,
+  rotation = 0,
+  color = "#d9e8e7",
+}: {
+  position: [number, number, number];
+  rotation?: number;
+  color?: string;
+}) {
+  return (
+    <RigidBody type="fixed" colliders="cuboid">
+      <group position={position} rotation={[0, rotation, 0]}>
+        <DecorativeBox
+          position={[0, 0.48, 0]}
+          dimensions={[0.62, 0.14, 0.62]}
+          color={color}
+        />
+        <DecorativeBox
+          position={[0, 0.9, 0.27]}
+          dimensions={[0.62, 0.72, 0.12]}
+          color={color}
+        />
+        {[-0.23, 0.23].flatMap((x, xIndex) =>
+          [-0.23, 0.23].map((z, zIndex) => (
+            <DecorativeBox
+              key={`chair-leg-${String(xIndex)}-${String(zIndex)}`}
+              position={[x, 0.22, z]}
+              dimensions={[0.08, 0.44, 0.08]}
+              color="#52656b"
+              outline="#52656b"
+            />
+          )),
+        )}
+      </group>
+    </RigidBody>
+  );
+}
+
+function ExamBed({
+  position,
+  rotation = 0,
+  color = "#6fa9a0",
+}: {
+  position: [number, number, number];
+  rotation?: number;
+  color?: string;
+}) {
+  return (
+    <RigidBody type="fixed" colliders="cuboid">
+      <group position={position} rotation={[0, rotation, 0]}>
+        <DecorativeBox
+          position={[0, 0.63, 0]}
+          dimensions={[0.9, 0.22, 2.25]}
+          color={color}
+        />
+        <DecorativeBox
+          position={[0, 0.82, -0.82]}
+          dimensions={[0.76, 0.16, 0.48]}
+          color="#d9e8e7"
+        />
+        {[-0.34, 0.34].flatMap((x, xIndex) =>
+          [-0.82, 0.82].map((z, zIndex) => (
+            <DecorativeBox
+              key={`bed-leg-${String(xIndex)}-${String(zIndex)}`}
+              position={[x, 0.3, z]}
+              dimensions={[0.09, 0.58, 0.09]}
+              color="#52656b"
+              outline="#52656b"
+            />
+          )),
+        )}
+      </group>
+    </RigidBody>
+  );
+}
+
+function Counter({
+  position,
+  dimensions,
+  color = "#aa744b",
+}: {
+  position: [number, number, number];
+  dimensions: [number, number, number];
+  color?: string;
+}) {
+  return (
+    <RigidBody type="fixed" colliders="cuboid">
+      <group>
+        <DecorativeBox
+          position={position}
+          dimensions={dimensions}
+          color={color}
+        />
+        <DecorativeBox
+          position={[
+            position[0],
+            position[1] + dimensions[1] / 2 + 0.06,
+            position[2],
+          ]}
+          dimensions={[dimensions[0] + 0.12, 0.12, dimensions[2] + 0.12]}
+          color="#e1c18b"
+        />
+      </group>
+    </RigidBody>
+  );
+}
+
+function Plant({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.3, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.34, 0.55, 6]} />
+        <meshToonMaterial color="#d96c4b" />
+        <Edges color="#33434a" />
+      </mesh>
+      {[-0.3, 0, 0.3].map((offset, index) => (
+        <mesh
+          key={offset}
+          position={[offset * 0.45, 0.78 + Math.abs(offset), 0]}
+          rotation={[0, index * 1.7, offset]}
+          castShadow
+        >
+          <coneGeometry args={[0.28, 0.85, 5]} />
+          <meshToonMaterial color={index === 1 ? "#31785a" : "#4e9f6d"} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function WallPoster({
+  position,
+  rotation = 0,
+  color,
+}: {
+  position: [number, number, number];
+  rotation?: number;
+  color: string;
+}) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <DecorativeBox
+        position={[0, 0, 0]}
+        dimensions={[0.92, 1.18, 0.05]}
+        color="#f8efd9"
+      />
+      <DecorativeBox
+        position={[0, 0.23, -0.03]}
+        dimensions={[0.62, 0.22, 0.03]}
+        color={color}
+        outline={color}
+      />
+      <DecorativeBox
+        position={[-0.18, -0.16, -0.03]}
+        dimensions={[0.18, 0.36, 0.03]}
+        color="#73cfe6"
+        outline="#73cfe6"
+      />
+      <DecorativeBox
+        position={[0.18, -0.16, -0.03]}
+        dimensions={[0.18, 0.36, 0.03]}
+        color="#ffd166"
+        outline="#ffd166"
+      />
+    </group>
+  );
+}
+
+function OpenDoor({
+  position,
+  color,
+}: {
+  position: [number, number, number];
+  color: string;
+}) {
+  return (
+    <group position={position} rotation={[0, -Math.PI / 2.7, 0]}>
+      <DecorativeBox
+        position={[DOOR_WIDTH / 2, 1.06, 0]}
+        dimensions={[DOOR_WIDTH, 2.12, 0.09]}
+        color={color}
+      />
+      <mesh position={[DOOR_WIDTH - 0.18, 1.02, -0.08]}>
+        <sphereGeometry args={[0.07, 8, 6]} />
+        <meshToonMaterial color="#ffd166" />
       </mesh>
     </group>
   );
@@ -102,10 +342,12 @@ function LowPolyPerson({
       <mesh position={[0, 1.25, 0]} castShadow>
         <icosahedronGeometry args={[0.25, 1]} />
         <meshToonMaterial color="#d9a779" />
+        <Edges color="#33434a" />
       </mesh>
       <mesh position={[0, 0.72, 0]} castShadow>
         <coneGeometry args={[0.38, 0.9, 6]} />
         <meshToonMaterial color={color} />
+        <Edges color="#33434a" />
       </mesh>
       <mesh position={[-0.16, 0.18, 0]} castShadow>
         <boxGeometry args={[0.13, 0.55, 0.16]} />
@@ -130,12 +372,43 @@ function XrayMachine() {
       <mesh position={[0, 1.6, 0]} rotation={[0, Math.PI / 2, 0]} castShadow>
         <torusGeometry args={[0.9, 0.24, 8, 18]} />
         <meshToonMaterial color="#236a8d" />
+        <Edges color="#173e50" />
       </mesh>
       <StaticBox
         position={[0, 0.95, 0.75]}
         dimensions={[0.3, 1.6, 0.3]}
         color="#17252e"
       />
+      <DecorativeBox
+        position={[1.2, 1.1, 0.9]}
+        dimensions={[0.65, 0.48, 0.1]}
+        color="#17252e"
+        rotation={[0, -0.35, 0]}
+      />
+    </group>
+  );
+}
+
+function RetroSkyline() {
+  return (
+    <group>
+      <mesh position={[8, 9.5, -34]}>
+        <circleGeometry args={[5, 24]} />
+        <meshBasicMaterial color="#ffd166" fog={false} />
+      </mesh>
+      {(
+        [
+          [-16, 3.1, -28, 8, "#367d70"],
+          [-7, 2.2, -30, 6.5, "#4e9f6d"],
+          [1, 2.6, -31, 7, "#2f6d66"],
+          [13, 2.5, -29, 7.5, "#438d70"],
+        ] satisfies [number, number, number, number, string][]
+      ).map(([x, y, z, radius, color], index) => (
+        <mesh key={`mountain-${String(index)}`} position={[x, y, z]}>
+          <coneGeometry args={[radius, 10, 5]} />
+          <meshToonMaterial color={color} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -196,6 +469,20 @@ function WallWithDoor({ room }: { room: Room }) {
         dimensions={[DOOR_WIDTH, 0.68, WALL_THICKNESS]}
         color={WALL_COLOR}
       />
+      <DecorativeBox
+        position={[room.doorX - DOOR_WIDTH / 2, 1.1, 0.13]}
+        dimensions={[0.1, 2.2, 0.18]}
+        color={room.floor}
+      />
+      <DecorativeBox
+        position={[room.doorX + DOOR_WIDTH / 2, 1.1, 0.13]}
+        dimensions={[0.1, 2.2, 0.18]}
+        color={room.floor}
+      />
+      <OpenDoor
+        position={[room.doorX - DOOR_WIDTH / 2, 0, -0.04]}
+        color={room.floor}
+      />
       <RoomLabel position={[room.doorX, 2.32, 0.16]}>{room.name}</RoomLabel>
     </group>
   );
@@ -215,7 +502,7 @@ function HospitalGreybox() {
       <FloorZone
         position={[0, 0.02, 4.5]}
         dimensions={[27.5, 0.04, 8.75]}
-        color="#e2a669"
+        color="#cbd9d5"
       />
       <FloorZone
         position={[0, 0.025, 1.5]}
@@ -230,6 +517,33 @@ function HospitalGreybox() {
           color={room.floor}
         />
       ))}
+      <FloorGrid
+        position={[0, 0.065, 4.5]}
+        width={27.4}
+        depth={8.65}
+        divisions={18}
+      />
+      <FloorGrid
+        position={[0, 0.07, -4.5]}
+        width={27.4}
+        depth={8.65}
+        divisions={18}
+      />
+      <FloorZone
+        position={[5.5, 0.085, 5.25]}
+        dimensions={[10.5, 0.035, 5.8]}
+        color="#477f9d"
+      />
+      <FloorZone
+        position={[-5.5, 0.086, -6.4]}
+        dimensions={[4.45, 0.038, 4.5]}
+        color="#bd874d"
+      />
+      <FloorZone
+        position={[-0.5, 0.086, -6.4]}
+        dimensions={[4.45, 0.038, 4.5]}
+        color="#c99250"
+      />
 
       {/* Closed perimeter, with a single entrance in the lobby's south wall. */}
       <StaticBox
@@ -276,16 +590,109 @@ function HospitalGreybox() {
         />
       ))}
 
-      <Desk position={[-5.5, 0, 5.1]} color="#d96c4b" />
-      <Desk position={[-11, 0, -4.3]} color="#4e9f6d" />
-      <Desk position={[-5.5, 0, -4.3]} color="#d8b44b" />
-      <Desk position={[-0.5, 0, -4.3]} color="#d8a44b" />
-      <Desk position={[4.5, 0, -4.3]} color="#6faaa0" />
+      {/* Warm baseboards preserve the handmade board-game character. */}
+      <DecorativeBox
+        position={[0, 0.16, -8.82]}
+        dimensions={[27.5, 0.22, 0.08]}
+        color="#b8784d"
+      />
+      {[-8, -3, 2, 7].map((x, index) => (
+        <DecorativeBox
+          key={`trim-${String(index)}`}
+          position={[x + 0.13, 0.16, -4.5]}
+          dimensions={[0.08, 0.22, 8.6]}
+          color="#b8784d"
+        />
+      ))}
+
+      {/* Administración y sala de espera, tomadas de las vistas IMG_7692–95. */}
+      <Desk position={[-6.1, 0, 5.2]} color="#d96c4b" />
+      <Counter position={[-9.6, 0.55, 6.7]} dimensions={[3.2, 1.1, 0.65]} />
+      {(
+        [
+          [2.5, 4.1],
+          [5, 4.1],
+          [7.5, 4.1],
+          [2.5, 6.6],
+          [5, 6.6],
+          [7.5, 6.6],
+        ] satisfies [number, number][]
+      ).map(([x, z], index) => (
+        <Chair
+          key={`waiting-${String(index)}`}
+          position={[x, 0, z]}
+          color="#d7e2df"
+        />
+      ))}
+      <Plant position={[11.8, 0, 6.9]} />
+      <WallPoster
+        position={[-13.82, 1.75, 5.4]}
+        rotation={Math.PI / 2}
+        color="#e94f8a"
+      />
+
+      {/* Enfermería: dos puestos, mesada clínica y guardado perimetral. */}
+      <Counter
+        position={[-13.35, 0.5, -5.1]}
+        dimensions={[0.65, 1, 5.7]}
+        color="#7c9c90"
+      />
+      <ExamBed
+        position={[-11.8, 0, -6.2]}
+        rotation={Math.PI / 2}
+        color="#6c9fb8"
+      />
+      <ExamBed
+        position={[-9.4, 0, -6.2]}
+        rotation={Math.PI / 2}
+        color="#6c9fb8"
+      />
+      <Chair position={[-12.2, 0, -2.4]} rotation={Math.PI} color="#ffd166" />
+
+      {/* Consultorios: madera, escritorio y camilla según IMG_7689–90. */}
+      <Desk position={[-5.5, 0, -6.5]} color="#a96b43" />
+      <Chair position={[-5.5, 0, -5.35]} rotation={Math.PI} color="#73a6bc" />
+      <ExamBed position={[-3.85, 0, -3.15]} color="#6fa99c" />
+      <Plant position={[-7.35, 0, -7.5]} />
+      <Desk position={[-0.5, 0, -6.5]} color="#aa7046" />
+      <Chair position={[-0.5, 0, -5.35]} rotation={Math.PI} color="#73a6bc" />
+      <ExamBed position={[1.15, 0, -3.15]} color="#78ad9e" />
+      <Plant position={[-2.35, 0, -7.5]} />
+
+      {/* Laboratorio: dos islas y una mesada lateral de las IMG_7688/94. */}
+      <Counter
+        position={[6.25, 0.5, -5.1]}
+        dimensions={[0.65, 1, 5.7]}
+        color="#8a6548"
+      />
+      <Counter
+        position={[3.45, 0.45, -5.8]}
+        dimensions={[1.45, 0.9, 2.5]}
+        color="#87aeb6"
+      />
+      <Counter
+        position={[5.2, 0.45, -3.25]}
+        dimensions={[1.45, 0.9, 2.2]}
+        color="#9abac0"
+      />
+      <Chair position={[3.45, 0, -4.2]} color="#e2a669" />
+
+      {/* Radiología conserva el equipo protagonista y suma camilla/mesada. */}
       <XrayMachine />
+      <ExamBed
+        position={[8.4, 0, -3.8]}
+        rotation={Math.PI / 2}
+        color="#6fa99c"
+      />
+      <Counter
+        position={[12.8, 0.5, -5.2]}
+        dimensions={[0.65, 1, 5.8]}
+        color="#8a6548"
+      />
 
       <LowPolyPerson position={[-7.4, 0, 6.1]} color="#e94f8a" />
-      <LowPolyPerson position={[-11.8, 0, -3]} color="#4e9f6d" />
-      <LowPolyPerson position={[-6.2, 0, -3]} color="#236a8d" />
+      <LowPolyPerson position={[-10.4, 0, -3]} color="#4e9f6d" />
+      <LowPolyPerson position={[-6.6, 0, -3]} color="#236a8d" />
 
       <RoomLabel position={[-5.5, 2.25, 5.3]}>ADMINISTRACIÓN</RoomLabel>
       <RoomLabel position={[0, 2.45, 1.6]}>PASILLO CLÍNICO</RoomLabel>
@@ -297,12 +704,12 @@ function HospitalGreybox() {
 export function HospitalScene({ turnSignal, stepSignal }: HospitalSceneProps) {
   return (
     <>
-      <color attach="background" args={["#73cfe6"]} />
-      <fog attach="fog" args={["#73cfe6", 18, 42]} />
-      <hemisphereLight args={["#fff3cf", "#356f58", 1.8]} />
+      <color attach="background" args={["#67c6df"]} />
+      <fog attach="fog" args={["#73cfe6", 23, 48]} />
+      <hemisphereLight args={["#fff0c2", "#2f6d66", 1.65]} />
       <directionalLight
         position={[-8, 14, 8]}
-        intensity={2.4}
+        intensity={2.65}
         color="#ffd99a"
         castShadow
         shadow-mapSize={[1024, 1024]}
@@ -311,6 +718,7 @@ export function HospitalScene({ turnSignal, stepSignal }: HospitalSceneProps) {
         shadow-camera-top={14}
         shadow-camera-bottom={-14}
       />
+      <RetroSkyline />
       <Physics gravity={[0, 0, 0]}>
         <HospitalGreybox />
         <FirstPersonController
