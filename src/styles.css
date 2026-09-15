@@ -1438,6 +1438,13 @@ summary:focus-visible {
   color: white;
 }
 
+.patient-world-tag.late {
+  border-color: #8f1d2c;
+  background: #8f1d2c;
+  color: #fff4ef;
+  box-shadow: 2px 2px 0 #4c1420;
+}
+
 @media (max-width: 1050px) {
   .setup-layout {
     grid-template-columns: 1fr;

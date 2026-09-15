@@ -455,7 +455,7 @@ function OpenDoor({
       type="fixed"
       colliders={false}
       position={position}
-      rotation={[0, -Math.PI / 2.7, 0]}
+      rotation={[0, -Math.PI / 2, 0]}
     >
       <CuboidCollider
         args={[DOOR_WIDTH / 2, 1.06, 0.045]}
@@ -536,6 +536,8 @@ function HumanFigure({
   hairColor = "#3a2c27",
   phase = 0,
   walking = false,
+  sitting = false,
+  late = false,
   qrCode,
   braceletColor,
 }: {
@@ -546,6 +548,8 @@ function HumanFigure({
   hairColor?: string;
   phase?: number;
   walking?: boolean;
+  sitting?: boolean;
+  late?: boolean;
   qrCode?: number;
   braceletColor?: string;
 }) {
@@ -560,11 +564,14 @@ function HumanFigure({
     const stride = walking ? Math.sin(time) * 0.52 : Math.sin(time) * 0.035;
     if (root.current)
       root.current.position.y =
-        position[1] + Math.abs(Math.sin(time)) * (walking ? 0.035 : 0.008);
+        position[1] +
+        (sitting ? 0 : Math.abs(Math.sin(time)) * (walking ? 0.035 : 0.008));
     if (leftArm.current) leftArm.current.rotation.x = stride;
     if (rightArm.current) rightArm.current.rotation.x = -stride;
-    if (leftLeg.current) leftLeg.current.rotation.x = -stride * 0.72;
-    if (rightLeg.current) rightLeg.current.rotation.x = stride * 0.72;
+    if (leftLeg.current)
+      leftLeg.current.rotation.x = sitting ? -Math.PI / 2 : -stride * 0.72;
+    if (rightLeg.current)
+      rightLeg.current.rotation.x = sitting ? -Math.PI / 2 : stride * 0.72;
   });
 
   return (
@@ -639,7 +646,7 @@ function HumanFigure({
         <group
           key={`leg-${String(side)}`}
           ref={side < 0 ? leftLeg : rightLeg}
-          position={[side * 0.17, 0.66, 0]}
+          position={[side * 0.17, sitting ? 0.72 : 0.98, sitting ? 0.1 : 0]}
         >
           <mesh position={[0, -0.32, 0]} castShadow>
             <capsuleGeometry args={[0.13, 0.48, 4, 8]} />
@@ -669,6 +676,26 @@ function HumanFigure({
         <meshToonMaterial color="#f4e9d8" />
       </RoundedBox>
       {qrCode === undefined ? null : <PatientQr code={qrCode} />}
+      {late ? (
+        <>
+          {[0, Math.PI].map((rotation) => (
+            <group key={rotation} rotation={[0, rotation, 0]}>
+              <mesh position={[0.11, 2.04, 0.22]} scale={[1.3, 0.5, 0.25]}>
+                <sphereGeometry args={[0.11, 8, 6]} />
+                <meshToonMaterial color="#8f1d2c" />
+              </mesh>
+              <mesh position={[0.16, 1.82, 0.25]}>
+                <sphereGeometry args={[0.045, 8, 6]} />
+                <meshToonMaterial color="#c5283d" />
+              </mesh>
+              <mesh position={[0.16, 1.73, 0.25]}>
+                <sphereGeometry args={[0.025, 8, 6]} />
+                <meshToonMaterial color="#c5283d" />
+              </mesh>
+            </group>
+          ))}
+        </>
+      ) : null}
     </group>
   );
 }
@@ -684,7 +711,7 @@ function StationWorker({
 }) {
   return (
     <RigidBody type="fixed" colliders={false} position={position}>
-      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.95, 0]} />
+      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.77, 0]} />
       <HumanFigure position={[0, 0, 0]} topColor={topColor} phase={phase} />
     </RigidBody>
   );
@@ -711,12 +738,12 @@ const queueOrigins: Record<StationId, [number, number, number]> = {
 };
 
 const waitingPositions: [number, number, number][] = [
-  [2.5, 0, 3.25],
-  [5, 0, 3.25],
-  [7.5, 0, 3.25],
-  [2.5, 0, 5.75],
-  [5, 0, 5.75],
-  [7.5, 0, 5.75],
+  [2.5, 0, 4.1],
+  [5, 0, 4.1],
+  [7.5, 0, 4.1],
+  [2.5, 0, 6.6],
+  [5, 0, 6.6],
+  [7.5, 0, 6.6],
   [9.3, 0, 4.25],
   [9.3, 0, 5.25],
 ];
@@ -815,6 +842,8 @@ function PatientActor({
   const patientColors = ["#d98355", "#738caf", "#b98755", "#6d9c82"];
   const topColor =
     patientColors[(state.code - 1) % patientColors.length] ?? "#738caf";
+  const sitting =
+    state.activity === "queued" && state.stationId !== "administration";
   const braceletColor = state.requiresXray
     ? vip
       ? "#ff4f9a"
@@ -834,6 +863,7 @@ function PatientActor({
       targetVector.current,
       waypointVector.current,
     );
+    if (visual.current && sitting) visual.current.rotation.y = Math.PI;
     const distance = currentVector.current.distanceTo(waypoint);
     if (distance < 0.025) return;
 
@@ -841,7 +871,7 @@ function PatientActor({
     const direction = waypoint.sub(currentVector.current).normalize();
     const next = currentVector.current.addScaledVector(direction, step);
     rigidBody.setNextKinematicTranslation(next);
-    if (visual.current)
+    if (visual.current && !sitting)
       visual.current.rotation.y = Math.atan2(direction.x, direction.z);
   });
 
@@ -853,7 +883,7 @@ function PatientActor({
       position={[state.code % 2 === 0 ? 0.9 : -0.9, 0, 8.15]}
       enabledRotations={[false, false, false]}
     >
-      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.95, 0]} />
+      <CapsuleCollider args={[0.5, 0.27]} position={[0, 0.77, 0]} />
       <group ref={visual}>
         <HumanFigure
           position={[0, 0, 0]}
@@ -862,7 +892,15 @@ function PatientActor({
           skinColor={vip ? "#d8a077" : "#b97e60"}
           hairColor={vip ? "#bf6c3f" : "#332924"}
           phase={state.code * 0.73}
-          walking
+          walking={
+            (state.activity === "queued" &&
+              state.stationId === "administration") ||
+            state.activity === "departing"
+          }
+          sitting={
+            state.activity === "queued" && state.stationId !== "administration"
+          }
+          late={state.isLate}
           qrCode={state.code}
           {...(state.checkedIn ? { braceletColor } : {})}
         />
@@ -872,9 +910,12 @@ function PatientActor({
           distanceFactor={7}
           style={{ pointerEvents: "none" }}
         >
-          <span className={`patient-world-tag ${vip ? "vip" : ""}`}>
+          <span
+            className={`patient-world-tag ${vip ? "vip" : ""} ${state.isLate ? "late" : ""}`}
+          >
             {vip ? "VIP · " : ""}
-            {state.requiresXray ? "ANÁLISIS · " : ""}#
+            {state.requiresXray ? "ANÁLISIS · " : ""}
+            {state.isLate ? "TARDE · " : ""}#
             {String(state.code).padStart(2, "0")}
           </span>
         </Html>
