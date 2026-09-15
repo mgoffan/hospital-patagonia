@@ -41,6 +41,14 @@ describe("App", () => {
     await user.click(
       screen.getByRole("button", { name: "Simular ronda de 5 minutos" }),
     );
+    expect(
+      await screen.findByRole("heading", { name: "Recorré el hospital." }),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", {
+        name: "Finalizar ronda y ver resultados",
+      }),
+    );
 
     expect(
       screen.getByRole("heading", { name: "Así funcionó tu hospital." }),

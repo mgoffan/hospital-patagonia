@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 
 import type { RoundConfiguration } from "./domain/configuration";
 import { RoundDebrief } from "./features/debrief/RoundDebrief";
@@ -6,14 +6,18 @@ import { GameSetup } from "./features/setup/GameSetup";
 import { ReadyRoom } from "./features/setup/ReadyRoom";
 import { runSimulation, type SimulationResult } from "./simulation/engine";
 
+const GameOperation = lazy(() => import("./features/operation/GameOperation"));
+
 export function App() {
   const [configuration, setConfiguration] = useState<RoundConfiguration | null>(
     null,
   );
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
+  const [operationStarted, setOperationStarted] = useState(false);
 
   const reset = () => {
     setSimulation(null);
+    setOperationStarted(false);
     setConfiguration(null);
   };
 
@@ -39,12 +43,28 @@ export function App() {
           </span>
         </a>
         <span className="build-tag">
-          PRE-ALPHA · {simulation ? "DEBRIEF" : "SETUP"}
+          PRE-ALPHA ·{" "}
+          {simulation ? "DEBRIEF" : operationStarted ? "GREYBOX" : "SETUP"}
         </span>
       </header>
 
       {simulation ? (
         <RoundDebrief simulation={simulation} onNewRound={reset} />
+      ) : operationStarted && configuration ? (
+        <Suspense
+          fallback={<div className="route-loader">Cargando hospital 3D…</div>}
+        >
+          <GameOperation
+            configuration={configuration}
+            onBack={() => {
+              setOperationStarted(false);
+            }}
+            onComplete={() => {
+              setSimulation(runSimulation(configuration));
+              setOperationStarted(false);
+            }}
+          />
+        </Suspense>
       ) : configuration ? (
         <ReadyRoom
           configuration={configuration}
@@ -52,7 +72,7 @@ export function App() {
             setConfiguration(null);
           }}
           onRun={() => {
-            setSimulation(runSimulation(configuration));
+            setOperationStarted(true);
           }}
         />
       ) : (
