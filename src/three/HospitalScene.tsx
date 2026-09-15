@@ -718,7 +718,8 @@ function StationWorker({
 }
 
 const servicePositions: Record<StationId, [number, number, number][]> = {
-  administration: [[-7.5, 0, 5.15]],
+  // Patients stop on the public side of the reception desk.
+  administration: [[-6.1, 0, 6.9]],
   nursing: [
     [-11.7, 0, -3.35],
     [-9.5, 0, -3.35],
@@ -731,7 +732,7 @@ const servicePositions: Record<StationId, [number, number, number][]> = {
 };
 
 const queueOrigins: Record<StationId, [number, number, number]> = {
-  administration: [-3.8, 0, 4.1],
+  administration: [-6.8, 0, 7.45],
   nursing: [-12.4, 0, 1.25],
   doctor: [-6.8, 0, 1.35],
   xray: [8.2, 0, 1.25],
@@ -747,6 +748,9 @@ const waitingPositions: [number, number, number][] = [
   [9.3, 0, 4.25],
   [9.3, 0, 5.25],
 ];
+
+const RECEPTION_CLEAR_X = -3.8;
+const RECEPTION_FRONT_Z = 6.9;
 
 function patientTarget(
   state: VisualPatientState,
@@ -768,7 +772,7 @@ function patientTarget(
   }
 
   const origin = queueOrigins[state.stationId];
-  const columns = 4;
+  const columns = 3;
   const column = state.queueIndex % columns;
   const row = Math.floor(state.queueIndex / columns);
   return [origin[0] + column * 0.82, 0, origin[2] + row * 0.82];
@@ -797,6 +801,10 @@ function navigationWaypoint(
 ) {
   const insideRoom = current.z < -0.72;
   const destinationInsideRoom = destination.z < -0.72;
+  const currentAtReception =
+    current.x > -8 && current.x < -4.4 && current.z > 5.7;
+  const destinationAtReception =
+    destination.x > -8 && destination.x < -4.4 && destination.z > 5.7;
 
   if (
     insideRoom &&
@@ -812,6 +820,24 @@ function navigationWaypoint(
       return waypoint.set(exitX, 0, current.z);
     }
     return waypoint.set(exitX, 0, 0.9);
+  }
+
+  // Reception has a desk and a fixed worker: leave it through its right aisle
+  // before descending to the clinical corridor.
+  if (destinationInsideRoom && currentAtReception) {
+    return waypoint.set(RECEPTION_CLEAR_X, 0, current.z);
+  }
+
+  // Returning to administration always approaches the public side of the
+  // desk from the clear right aisle, never diagonally through the furniture.
+  if (destinationAtReception) {
+    if (Math.abs(current.x - RECEPTION_CLEAR_X) > 0.08) {
+      return waypoint.set(RECEPTION_CLEAR_X, 0, current.z);
+    }
+    if (current.z < RECEPTION_FRONT_Z - 0.18) {
+      return waypoint.set(RECEPTION_CLEAR_X, 0, RECEPTION_FRONT_Z);
+    }
+    return waypoint.copy(destination);
   }
 
   if (destinationInsideRoom) {
@@ -994,9 +1020,9 @@ function PatientRoutes() {
         color="#e86f51"
         points={[
           [0, 8.85],
-          [-1.4, 7.2],
-          [-3.8, 4.2],
-          [-7.15, 4.85],
+          [-3.8, 8.15],
+          [-3.8, 6.9],
+          [-6.1, 6.85],
         ]}
       />
       <FloorTape
@@ -1421,7 +1447,7 @@ function HospitalGreybox({
       <StorageCabinet position={[7.65, 0, -8.45]} color="#668f9a" />
       <ClinicalCart position={[12.1, 0, -2.2]} />
 
-      <StationWorker position={[-7.4, 0, 6.1]} topColor="#e94f8a" phase={0.4} />
+      <StationWorker position={[-6.1, 0, 6]} topColor="#e94f8a" phase={0.4} />
       <StationWorker position={[-10.4, 0, -3]} topColor="#4e9f6d" phase={1.2} />
       <StationWorker position={[-6.6, 0, -3]} topColor="#236a8d" phase={2.1} />
       <StationWorker position={[-1.5, 0, -3]} topColor="#236a8d" phase={3.2} />
