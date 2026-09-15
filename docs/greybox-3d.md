@@ -13,7 +13,9 @@ El reloj permanece pausado durante este recorrido técnico. Al finalizar, el mot
 - Consultorio 1;
 - Consultorio 2;
 - Rayos;
-- área de circulación y espera;
+- lobby de Administración y espera;
+- pasillo clínico transversal;
+- Laboratorio;
 - perímetro y divisiones con colliders.
 
 La planta es una interpretación jugable de las fotografías, no una reconstrucción métrica. Se utiliza geometría low-poly, pisos codificados por color, cartelería integrada y props provisionales por estación.
@@ -23,7 +25,7 @@ La planta es una interpretación jugable de las fotografías, no una reconstrucc
 | Acción | Control |
 |---|---|
 | Entrar en cámara | botón `Entrar first-person` |
-| Moverse | `WASD` |
+| Moverse | `WASD` o flechas del teclado |
 | Mirar | mouse con Pointer Lock |
 | Liberar mouse | `Esc` |
 | Avanzar/retroceder sin Pointer Lock | controles visibles `↑` / `↓` |
@@ -84,3 +86,14 @@ El smoke test de Playwright usa Google Chrome y verifica:
 - reloj real conectado al mundo;
 - medición manual de FPS y compatibilidad en navegadores;
 - reemplazo gradual de props provisionales por kit modular derivado de las referencias autorizadas.
+
+## Corrección de planta posterior a validación
+
+La primera revisión confirmó escala general, cámara, colisiones y carga, pero detectó una interpretación incorrecta de las dimensiones de las primitivas. La planta se reconstruyó con medidas totales explícitas y ahora tiene:
+
+- una losa continua de `28 × 18` unidades, sin vacíos entre zonas;
+- perímetro cerrado con un único acceso frontal;
+- lobby conectado a un pasillo transversal continuo;
+- cinco salas independientes al norte del pasillo;
+- un vano de puerta visible y transitable por sala;
+- muros divisorios completos desde el pasillo hasta el fondo.
