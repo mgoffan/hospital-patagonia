@@ -152,19 +152,27 @@ export function deriveVisualPatientStates(
 
   return [...states.values()]
     .sort((left, right) => left.code - right.code)
-    .map((state) => ({
-      id: state.id,
-      code: state.code,
-      kind: state.kind,
-      requiresXray: state.requiresXray,
-      checkedIn: state.checkedIn,
-      isLate:
-        elapsedMs - (patients.get(state.id)?.arrivedAtMs ?? elapsedMs) > 60_000,
-      stationId: state.stationId,
-      activity: state.activity,
-      queueIndex: state.queueIndex,
-      ...(state.resourceSlot === undefined
-        ? {}
-        : { resourceSlot: state.resourceSlot }),
-    }));
+    .map((state) => {
+      const patient = patients.get(state.id);
+      const arrivedAtMs = patient?.arrivedAtMs ?? elapsedMs;
+      const receptionBandReady =
+        state.stationId === "administration" &&
+        state.activity === "inService" &&
+        elapsedMs - state.enteredStateAtMs >= 1_000;
+
+      return {
+        id: state.id,
+        code: state.code,
+        kind: state.kind,
+        requiresXray: state.requiresXray,
+        checkedIn: state.checkedIn || receptionBandReady,
+        isLate: elapsedMs - arrivedAtMs > 60_000,
+        stationId: state.stationId,
+        activity: state.activity,
+        queueIndex: state.queueIndex,
+        ...(state.resourceSlot === undefined
+          ? {}
+          : { resourceSlot: state.resourceSlot }),
+      };
+    });
 }

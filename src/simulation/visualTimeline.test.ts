@@ -47,6 +47,21 @@ describe("visual simulation timeline", () => {
   });
 
   it("adds the clinical wristband after reception", () => {
+    const receptionStarted = simulation.events.find(
+      (event) =>
+        event.type === "serviceStarted" && event.stationId === "administration",
+    );
+    expect(receptionStarted?.patientId).toBeDefined();
+    const oneSecondLater = deriveVisualPatientStates(
+      simulation,
+      (receptionStarted?.atMs ?? 0) + 1_000,
+    );
+    expect(
+      oneSecondLater.find(
+        (patient) => patient.id === receptionStarted?.patientId,
+      ),
+    ).toMatchObject({ checkedIn: true });
+
     const receptionComplete = simulation.events.find(
       (event) =>
         event.type === "serviceCompleted" &&
