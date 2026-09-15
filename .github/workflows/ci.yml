@@ -26,3 +26,6 @@ jobs:
 
       - name: Run project checks
         run: npm run check
+
+      - name: Run browser smoke test
+        run: npm run test:e2e
