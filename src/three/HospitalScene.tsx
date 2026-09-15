@@ -1,4 +1,4 @@
-import { Edges, Html } from "@react-three/drei";
+import { Edges, Html, RoundedBox, useTexture } from "@react-three/drei";
 import { Physics, RigidBody } from "@react-three/rapier";
 
 import { FirstPersonController } from "./FirstPersonController";
@@ -24,13 +24,20 @@ const WALL_HEIGHT = 3.2;
 const WALL_THICKNESS = 0.24;
 const DOOR_WIDTH = 1.55;
 
+function PaintedMaterial({ color }: { color: string }) {
+  const texture = useTexture(
+    `${import.meta.env.BASE_URL}textures/painted-grain.webp`,
+  );
+
+  return <meshToonMaterial color={color} map={texture} />;
+}
+
 function StaticBox({ position, dimensions, color }: BoxProps) {
   return (
     <RigidBody type="fixed" colliders="cuboid">
       <mesh position={position} castShadow receiveShadow>
         <boxGeometry args={dimensions} />
-        <meshToonMaterial color={color} />
-        <Edges color="#33434a" threshold={18} />
+        <PaintedMaterial color={color} />
       </mesh>
     </RigidBody>
   );
@@ -41,14 +48,28 @@ function DecorativeBox({
   dimensions,
   color,
   rotation = [0, 0, 0],
-  outline = "#33434a",
+  outline,
 }: DecorativeBoxProps) {
+  const radius = Math.min(
+    0.045,
+    dimensions[0] / 4,
+    dimensions[1] / 4,
+    dimensions[2] / 4,
+  );
+
   return (
-    <mesh position={position} rotation={rotation} castShadow receiveShadow>
-      <boxGeometry args={dimensions} />
-      <meshToonMaterial color={color} />
-      <Edges color={outline} threshold={18} />
-    </mesh>
+    <RoundedBox
+      args={dimensions}
+      position={position}
+      rotation={rotation}
+      radius={radius}
+      smoothness={1}
+      castShadow
+      receiveShadow
+    >
+      <PaintedMaterial color={color} />
+      {outline ? <Edges color={outline} threshold={18} /> : null}
+    </RoundedBox>
   );
 }
 
@@ -57,7 +78,7 @@ function FloorGrid({
   width,
   depth,
   divisions = 12,
-  color = "#67808a",
+  color = "#a5b5b4",
 }: {
   position: [number, number, number];
   width: number;
@@ -78,7 +99,7 @@ function FloorZone({ position, dimensions, color }: BoxProps) {
   return (
     <mesh position={position} receiveShadow>
       <boxGeometry args={dimensions} />
-      <meshToonMaterial color={color} />
+      <PaintedMaterial color={color} />
     </mesh>
   );
 }
@@ -304,6 +325,97 @@ function WallPoster({
         color="#ffd166"
         outline="#ffd166"
       />
+    </group>
+  );
+}
+
+function CeilingLight({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.8, 0.62]} />
+        <meshStandardMaterial
+          color="#fff7d6"
+          emissive="#ffe7a0"
+          emissiveIntensity={1.8}
+        />
+      </mesh>
+      <pointLight color="#ffe5ad" intensity={0.32} distance={6} decay={2} />
+    </group>
+  );
+}
+
+function WindowPanel({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <DecorativeBox
+        position={[0, 0, 0]}
+        dimensions={[2.15, 1.18, 0.08]}
+        color="#b9e1e7"
+      />
+      <DecorativeBox
+        position={[0, 0, -0.055]}
+        dimensions={[0.07, 1.22, 0.04]}
+        color="#e9e2cf"
+      />
+      <DecorativeBox
+        position={[0, 0, -0.06]}
+        dimensions={[2.2, 0.07, 0.04]}
+        color="#e9e2cf"
+      />
+    </group>
+  );
+}
+
+function StorageCabinet({
+  position,
+  color = "#7298a1",
+}: {
+  position: [number, number, number];
+  color?: string;
+}) {
+  return (
+    <RigidBody type="fixed" colliders="cuboid">
+      <group position={position}>
+        <DecorativeBox
+          position={[0, 0.82, 0]}
+          dimensions={[1.35, 1.64, 0.48]}
+          color={color}
+        />
+        <DecorativeBox
+          position={[-0.34, 0.85, -0.255]}
+          dimensions={[0.04, 0.45, 0.03]}
+          color="#f1d27a"
+        />
+        <DecorativeBox
+          position={[0.34, 0.85, -0.255]}
+          dimensions={[0.04, 0.45, 0.03]}
+          color="#f1d27a"
+        />
+      </group>
+    </RigidBody>
+  );
+}
+
+function ClinicalCart({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <DecorativeBox
+        position={[0, 0.58, 0]}
+        dimensions={[0.75, 0.75, 0.5]}
+        color="#77aeb3"
+      />
+      <DecorativeBox
+        position={[0, 1, 0]}
+        dimensions={[0.86, 0.09, 0.6]}
+        color="#d9e8e7"
+      />
+      {[-0.28, 0.28].map((x, index) => (
+        <mesh key={`cart-wheel-${String(index)}`} position={[x, 0.15, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 0.08, 10]} />
+          <meshToonMaterial color="#33434a" />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -545,6 +657,33 @@ function HospitalGreybox() {
         color="#c99250"
       />
 
+      {/* A real ceiling removes the empty open-sky feeling of the greybox. */}
+      <mesh position={[0, 3.28, 0]} receiveShadow>
+        <boxGeometry args={[28, 0.14, 18]} />
+        <PaintedMaterial color="#eee6d5" />
+      </mesh>
+      {(
+        [
+          [-9.5, 3.18, 5],
+          [-3.2, 3.18, 5],
+          [3.2, 3.18, 5],
+          [9.5, 3.18, 5],
+          [-9.5, 3.18, 1.45],
+          [0, 3.18, 1.45],
+          [9.5, 3.18, 1.45],
+          [-10.7, 3.18, -4.7],
+          [-5.5, 3.18, -4.7],
+          [-0.5, 3.18, -4.7],
+          [4.5, 3.18, -4.7],
+          [10.5, 3.18, -4.7],
+        ] satisfies [number, number, number][]
+      ).map((position, index) => (
+        <CeilingLight
+          key={`ceiling-light-${String(index)}`}
+          position={position}
+        />
+      ))}
+
       {/* Closed perimeter, with a single entrance in the lobby's south wall. */}
       <StaticBox
         position={[0, WALL_HEIGHT / 2, -9]}
@@ -590,6 +729,13 @@ function HospitalGreybox() {
         />
       ))}
 
+      {rooms.map((room) => (
+        <WindowPanel
+          key={`window-${room.name}`}
+          position={[(room.minX + room.maxX) / 2, 1.82, -8.84]}
+        />
+      ))}
+
       {/* Warm baseboards preserve the handmade board-game character. */}
       <DecorativeBox
         position={[0, 0.16, -8.82]}
@@ -608,6 +754,7 @@ function HospitalGreybox() {
       {/* Administración y sala de espera, tomadas de las vistas IMG_7692–95. */}
       <Desk position={[-6.1, 0, 5.2]} color="#d96c4b" />
       <Counter position={[-9.6, 0.55, 6.7]} dimensions={[3.2, 1.1, 0.65]} />
+      <StorageCabinet position={[-12.8, 0, 7.8]} color="#c78b58" />
       {(
         [
           [2.5, 4.1],
@@ -625,6 +772,7 @@ function HospitalGreybox() {
         />
       ))}
       <Plant position={[11.8, 0, 6.9]} />
+      <Plant position={[10.8, 0, 3.4]} />
       <WallPoster
         position={[-13.82, 1.75, 5.4]}
         rotation={Math.PI / 2}
@@ -648,16 +796,22 @@ function HospitalGreybox() {
         color="#6c9fb8"
       />
       <Chair position={[-12.2, 0, -2.4]} rotation={Math.PI} color="#ffd166" />
+      <StorageCabinet position={[-8.7, 0, -8.45]} />
+      <ClinicalCart position={[-9.1, 0, -2.3]} />
 
       {/* Consultorios: madera, escritorio y camilla según IMG_7689–90. */}
       <Desk position={[-5.5, 0, -6.5]} color="#a96b43" />
       <Chair position={[-5.5, 0, -5.35]} rotation={Math.PI} color="#73a6bc" />
       <ExamBed position={[-3.85, 0, -3.15]} color="#6fa99c" />
       <Plant position={[-7.35, 0, -7.5]} />
+      <StorageCabinet position={[-7.25, 0, -2.1]} color="#b77d50" />
+      <ClinicalCart position={[-3.8, 0, -7.45]} />
       <Desk position={[-0.5, 0, -6.5]} color="#aa7046" />
       <Chair position={[-0.5, 0, -5.35]} rotation={Math.PI} color="#73a6bc" />
       <ExamBed position={[1.15, 0, -3.15]} color="#78ad9e" />
       <Plant position={[-2.35, 0, -7.5]} />
+      <StorageCabinet position={[-2.25, 0, -2.1]} color="#b77d50" />
+      <ClinicalCart position={[1.2, 0, -7.45]} />
 
       {/* Laboratorio: dos islas y una mesada lateral de las IMG_7688/94. */}
       <Counter
@@ -676,6 +830,8 @@ function HospitalGreybox() {
         color="#9abac0"
       />
       <Chair position={[3.45, 0, -4.2]} color="#e2a669" />
+      <StorageCabinet position={[2.6, 0, -8.45]} color="#7d9fa6" />
+      <ClinicalCart position={[5.8, 0, -7.6]} />
 
       {/* Radiología conserva el equipo protagonista y suma camilla/mesada. */}
       <XrayMachine />
@@ -689,10 +845,15 @@ function HospitalGreybox() {
         dimensions={[0.65, 1, 5.8]}
         color="#8a6548"
       />
+      <StorageCabinet position={[7.65, 0, -8.45]} color="#668f9a" />
+      <ClinicalCart position={[12.1, 0, -2.2]} />
 
       <LowPolyPerson position={[-7.4, 0, 6.1]} color="#e94f8a" />
       <LowPolyPerson position={[-10.4, 0, -3]} color="#4e9f6d" />
       <LowPolyPerson position={[-6.6, 0, -3]} color="#236a8d" />
+      <LowPolyPerson position={[-1.5, 0, -3]} color="#236a8d" />
+      <LowPolyPerson position={[5.4, 0, -3]} color="#6faaa0" />
+      <LowPolyPerson position={[11.9, 0, -3.1]} color="#8fc2d6" />
 
       <RoomLabel position={[-5.5, 2.25, 5.3]}>ADMINISTRACIÓN</RoomLabel>
       <RoomLabel position={[0, 2.45, 1.6]}>PASILLO CLÍNICO</RoomLabel>
