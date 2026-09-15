@@ -42,14 +42,14 @@
 
 ## Hito 2 - Greybox first-person
 
-- [ ] **Manual, bloqueante:** se puede recorrer recepción, Enfermería, dos consultorios, análisis y radiología.
-- [ ] **Manual, bloqueante:** puertas y pasillos no permiten salir del mundo.
+- [x] **Manual, bloqueante:** se puede recorrer recepción, Enfermería, dos consultorios, análisis y radiología.
+- [x] **Manual, bloqueante:** puertas y pasillos no permiten salir del mundo.
 - [ ] **Automático:** el jugador no atraviesa colliders estáticos.
 - [ ] **Manual, bloqueante:** todos los objetos interactivos comunican foco y acción.
 - [ ] **Manual:** cada sala se reconoce sin depender del HUD.
 - [ ] **Manual:** existe alternativa de interacción sin Pointer Lock.
 - [ ] **Manual:** opciones de sensibilidad y reducción de movimiento funcionan.
-- [ ] **Automático:** la escena carga mediante el base path de GitHub Pages.
+- [x] **Automático:** la escena carga mediante el base path de GitHub Pages.
 
 ## Hito 3 - Vertical slice de Administración
 

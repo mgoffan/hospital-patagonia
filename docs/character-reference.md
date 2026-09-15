@@ -19,8 +19,18 @@ Los modelos del hospital no reproducen integrantes de la banda. Adoptan únicame
 - animación procedural de respiración y marcha;
 - identificación visual del paciente VIP sin depender sólo del color de ropa.
 
-## Primer flujo visible M4
+## Flujo visible conectado
 
-Tres pacientes recorren rutas de previsualización desde la entrada, por el lobby y el pasillo, hasta Enfermería, Consultorio y Radiología. Estas rutas comprueban legibilidad y densidad, pero todavía no representan el reloj ni los eventos del motor determinista. Conectar ambas capas es el siguiente paso técnico.
+Los pacientes visibles ahora se derivan de las llegadas, colas, inicios de servicio y altas del event log determinista. La ronda comienza al entrar en first-person y reproduce los cinco minutos a velocidad `×10`.
+
+- Los pacientes aparecen únicamente después de su llegada real.
+- Cada cola recibe posiciones ordenadas por antigüedad.
+- Cada slot de servicio tiene un anchor dentro de su sala.
+- Un alta elimina al paciente del piso activo.
+- El HUD muestra activos, pacientes en cola y altas acumuladas.
+- El personal usa colliders fijos y los pacientes, cuerpos cinemáticos con cápsula.
+- Las hojas abiertas de las puertas tienen colliders alineados con su rotación.
+
+La simulación sigue siendo precomputada y determinista; el renderer reproduce su event log sin modificarlo. Las acciones manuales que alterarán ese log pertenecen al próximo incremento.
 
 Las capturas externas fueron inspeccionadas de forma temporal y no forman parte del repositorio público.

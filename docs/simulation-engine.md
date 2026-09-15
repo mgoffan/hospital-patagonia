@@ -70,6 +70,18 @@ Se registran:
 
 Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y longitud de cola cuando corresponde.
 
+## Proyección al mundo 3D
+
+`visualTimeline.ts` reduce el event log hasta un instante lógico y genera únicamente estado de presentación:
+
+- pacientes activos;
+- estación actual;
+- espera o servicio;
+- posición dentro de la cola;
+- slot de recurso asignado.
+
+El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla y verificar por tests que un paciente no aparece antes de llegar ni permanece después del alta.
+
 ## Resultados
 
 ### Operación
@@ -100,4 +112,3 @@ Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y lon
 - exportación JSON/CSV;
 - property tests adicionales;
 - comandos interactivos de jugador e IA.
-
