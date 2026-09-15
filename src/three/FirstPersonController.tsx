@@ -33,10 +33,18 @@ export function FirstPersonController({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
-        ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown"].includes(
-          event.code,
-        )
+        [
+          "KeyW",
+          "KeyA",
+          "KeyS",
+          "KeyD",
+          "ArrowUp",
+          "ArrowDown",
+          "ArrowLeft",
+          "ArrowRight",
+        ].includes(event.code)
       ) {
+        event.preventDefault();
         pressedKeys.current.add(event.code);
       }
     };
@@ -107,7 +115,8 @@ export function FirstPersonController({
       (keys.has("KeyW") || keys.has("ArrowUp") ? 1 : 0) -
       (keys.has("KeyS") || keys.has("ArrowDown") ? 1 : 0);
     const sidewaysInput =
-      (keys.has("KeyD") ? 1 : 0) - (keys.has("KeyA") ? 1 : 0);
+      (keys.has("KeyD") || keys.has("ArrowRight") ? 1 : 0) -
+      (keys.has("KeyA") || keys.has("ArrowLeft") ? 1 : 0);
 
     forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
     right.set(Math.cos(yaw.current), 0, -Math.sin(yaw.current));
