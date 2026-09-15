@@ -78,7 +78,7 @@ Las diapositivas y el boceto del equipo muestran retornos desde análisis y circ
 | Administrativo | `$50` |
 | Mantenimiento de sistemas | `$50` |
 
-No se especifica en las fuentes si estos costos se cobran por ronda, por incorporación o por otra unidad temporal. Es una pregunta abierta.
+No se especifica en las fuentes si estos costos se cobran por ronda, por incorporación o por otra unidad temporal. El MVP los tratará provisoriamente como costos por ronda y conservará la versión de reglas.
 
 ## Inversiones y cambios observados
 
@@ -93,18 +93,18 @@ No se especifica en las fuentes si estos costos se cobran por ronda, por incorpo
 
 También se menciona una mejora de velocidad coordinada entre Enfermería y Médicos, pero su costo y efecto exactos no están explicitados.
 
-## Tiempos mostrados en las diapositivas
+## Tiempos de procesamiento
 
 Una lámina presenta las siguientes referencias:
 
-| Estación | Valores mostrados |
-|---|---:|
-| Enfermería | `5 / 10 s` |
-| Guardia | `5 / 15 s` |
-| Análisis | `5 / 10 s` |
-| Tratamiento total | mínimo `15 s`, máximo `25 s` |
+| Estación | Lámina | Programa de rol | Regla a implementar |
+|---|---:|---:|---:|
+| Enfermería | `5 / 10 s` | `5,6..9,8 s` | entero `56..98` × `0,10 s` |
+| Guardia | `5 / 15 s` | `4,9..15,0 s` | entero `49..150` × `0,10 s` |
+| Rayos | `5 / 10 s` | `5,6..9,8 s` | entero `56..98` × `0,10 s` |
+| Tratamiento total | mínimo `15 s`, máximo `25 s` | — | referencia aproximada |
 
-La correspondencia entre cada valor, severidad y tipo de paciente no está definida en el texto extraído. Debe validarse con el facilitador antes de codificarla como regla.
+Los JSON públicos de Scratch confirman que son rangos aleatorios por servicio. No dependen de gravedad ni de VIP en el código observado. La nueva simulación debe tomar estas muestras con su PRNG determinista.
 
 ## Reglas actualmente codificadas en la webapp
 

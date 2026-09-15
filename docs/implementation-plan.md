@@ -21,8 +21,9 @@ Este plan prioriza un vertical slice end-to-end antes de ampliar roles o produci
 
 ```text
 M0 Foundation
-  -> M1 Simulation Core
-      -> M2 Greybox & Interaction
+  -> M0.5 Session Setup
+      -> M1 Simulation Core
+          -> M2 Greybox & Interaction
           -> M3 Administration Vertical Slice
               -> M4 Full Round & Roles
                   -> M5 Debrief & Replay
@@ -68,6 +69,34 @@ Cumplir criterios de Hito 0 en [acceptance-criteria.md](./acceptance-criteria.md
 3. `test: add browser smoke test`
 4. `ci: deploy application to GitHub Pages`
 5. `feat: add application shell and routes`
+
+## M0.5 - Configuración de partida
+
+### Objetivo
+
+Entregar la primera decisión jugable y fijar el contrato económico antes del motor 3D.
+
+### Trabajo
+
+- Implementar catálogo versionado de recursos, costos e ingresos.
+- Crear selectores de demanda, rol, nombre y semilla.
+- Configurar cantidades de personal con subtotal inmediato.
+- Mostrar costo operativo y condiciones de ingreso `$50/$200/$0`.
+- Validar combinaciones mínimas de recursos.
+- Generar un snapshot inmutable al confirmar.
+- Definir el contrato del ledger y del resumen operativo/P&L.
+- Aplicar el primer pase visual low-poly inspirado en videojuegos 3D de fines de los noventa.
+
+### Entregable
+
+Pantalla responsive y accesible que permite armar y confirmar una ronda con costos verificables.
+
+### Commits sugeridos
+
+1. `feat: model round configuration and economy`
+2. `feat: build game setup experience`
+3. `test: cover setup costs and validation`
+4. `style: establish retro low-poly interface`
 
 ## M1 - Simulation Core
 

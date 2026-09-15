@@ -21,15 +21,21 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 6. [Concepto de videojuego](./game-concept.md)
 7. [Stack y arquitectura propuestos](./technical-architecture.md)
 8. [Preguntas abiertas](./open-questions.md)
+9. [Consigna del profesor y programas de rol](./professor-brief.md)
+10. [Configuración de partida](./session-configuration.md)
+11. [Economía y resultados](./economics-and-results.md)
+12. [Dirección de arte](./art-direction.md)
 
 ## Estado
 
 - Investigación documental: completa para las fuentes recibidas.
 - Inspección del bundle público de la webapp: completa, con las limitaciones indicadas en la auditoría.
-- Inventario de las 17 fotografías: completo.
+- Inventario de las 17 fotografías de `Archive 4.zip`: completo.
+- Lectura de las tres fotografías y cuatro QR de rol de `Archive 5.zip`: completa.
+- Inspección de los programas Scratch de Enfermería, Médico y Rayos: completa.
 - Lectura de los cinco QR visibles: completa.
 - Especificación y plan de implementación: completos con supuestos provisionales explícitos.
-- Implementación: pendiente; la próxima etapa es `M0 - Foundation`.
+- Implementación: en curso; el primer corte es la configuración de partida.
 
 ## Principio rector
 

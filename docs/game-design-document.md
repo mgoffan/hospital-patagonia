@@ -59,6 +59,10 @@ El jugador conoce:
 
 No conoce la secuencia futura de llegadas.
 
+### Configuración
+
+Antes del briefing operativo, el jugador arma el turno: elige demanda, rol y cantidades de personal, observa el subtotal por recurso y confirma el costo operativo. Esa configuración queda congelada para poder atribuir el resultado a decisiones concretas.
+
 ### Preparación
 
 Puede recorrer la estación, leer controles y completar un tutorial contextual. El reloj no corre.
@@ -363,7 +367,9 @@ No se muestran dashboards completos durante la operación base. La inversión en
 
 ### Dirección
 
-“El tablero cobra vida”: geometría 3D simple con contornos suaves, paleta derivada de las ilustraciones y materiales con variación de acuarela.
+“El tablero cobra vida” con lenguaje de videojuego 3D de fines de los noventa: low-poly, paleta saturada, iluminación solar exagerada, niebla coloreada y animación expresiva. La inspiración es el videoclip de `Californication`, sin copiar personajes, escenas, logos, música ni assets.
+
+La cámara permanece first-person por razones de diseño operativo. La referencia se expresa en el mundo y el HUD, no en replicar la tercera persona del video.
 
 ### Prioridades
 

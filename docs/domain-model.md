@@ -40,6 +40,7 @@ Raíz de una ejecución.
 ```ts
 type Session = {
   id: SessionId;
+  configuration: RoundConfiguration;
   scenarioId: ScenarioId;
   scenarioVersion: number;
   rulesVersion: number;
@@ -52,6 +53,7 @@ type Session = {
 };
 
 type SessionPhase =
+  | "setup"
   | "briefing"
   | "tutorial"
   | "ready"
@@ -76,6 +78,25 @@ type Scenario = {
   economy: EconomyRules;
   timeoutRules: TimeoutRules;
   availableInvestments: InvestmentDefinition[];
+};
+```
+
+### RoundConfiguration
+
+Snapshot económico y operativo confirmado antes de iniciar una ronda.
+
+```ts
+type RoundConfiguration = {
+  id: string;
+  name: string;
+  seed: string;
+  demandId: "low" | "medium" | "intermediate" | "high";
+  playerRole: RoleId;
+  resources: Record<ResourceKind, number>;
+  activeInvestments: InvestmentId[];
+  economyVersion: number;
+  operatingCost: number;
+  createdAt: string;
 };
 ```
 

@@ -117,7 +117,7 @@ El modo específico de facilitador queda fuera del MVP, pero el event log y el r
 1. El usuario abre la aplicación.
 2. Elige **Nueva simulación**.
 3. Selecciona escenario o semilla y rol.
-4. Revisa recursos, costos y objetivo.
+4. Configura cantidades de personal y revisa costos, ingresos unitarios y objetivo.
 5. Ingresa al hospital en first-person.
 6. Completa un tutorial contextual corto.
 7. Inicia la ronda.
@@ -189,6 +189,14 @@ El primer uso debe enseñar movimiento, interacción, tarea del rol y lectura de
 
 Las señales críticas deben combinar texto, iconos, color y audio opcional.
 
+### RF-16 Configuración de ronda
+
+Antes de iniciar, el usuario debe configurar recursos viendo costo unitario, subtotal y costo operativo total. La ronda conserva un snapshot inmutable de esa decisión.
+
+### RF-17 P&L
+
+Cada ronda debe presentar ingresos normales y VIP, costos de personal, mantenimiento, penalidades, inversiones, resultado operativo y resultado neto. Los totales se derivan de un ledger auditable.
+
 ## 10. Requisitos no funcionales
 
 ### Performance
@@ -236,6 +244,9 @@ Hasta confirmar las reglas académicas:
 - `% 5`: usuario clave en el importador QR;
 - análisis retorna a revisión médica;
 - coworkers IA operan estaciones no elegidas.
+- tiempos de proceso: Enfermería `5,6..9,8 s`, Médico `4,9..15 s`, Rayos `5,6..9,8 s`;
+- costos de personal y mantenimiento tratados provisoriamente como costos por ronda;
+- penalidades adicionales en `$0` hasta confirmar su fórmula.
 
 Todos estos valores deben vivir fuera del código de render y estar versionados.
 

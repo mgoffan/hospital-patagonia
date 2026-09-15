@@ -4,14 +4,18 @@ Estas preguntas deben resolverse antes o durante la elaboración del plan. No to
 
 ## Reglas académicas
 
-1. ¿Los tiempos `5/10`, `5/15` y `5/10` dependen de gravedad, análisis u otra característica?
-2. ¿El máximo de `60 s` de la webapp reemplaza o complementa los tiempos de la diapositiva?
-3. ¿Cómo se calculan exactamente las penalidades por gravedad?
-4. ¿Los costos de personal y mantenimiento se cobran por ronda o una sola vez?
-5. ¿Qué efecto cuantitativo tiene cada inversión?
-6. ¿Cuál es el recorrido exacto después de análisis: vuelve a Guardia, Enfermería o puede ir a Administración?
-7. ¿Triage es una decisión sin costo independiente del rediseño de procesos?
-8. ¿Existe un límite físico de pacientes por sala o sólo una cola conceptual?
+1. ¿El máximo de `60 s` de la webapp reemplaza o complementa los tiempos por estación?
+2. ¿Cómo se calculan exactamente las penalidades por gravedad?
+3. ¿Los costos de personal y mantenimiento se cobran por ronda o una sola vez?
+4. ¿Qué efecto cuantitativo tiene cada inversión?
+5. ¿Cuál es el recorrido exacto después de análisis: vuelve a Guardia, Enfermería o puede ir a Administración?
+6. ¿Triage es una decisión sin costo independiente del rediseño de procesos?
+7. ¿Existe un límite físico de pacientes por sala o sólo una cola conceptual?
+8. ¿Existe presupuesto inicial o se compara libremente el P&L entre configuraciones?
+
+### Resuelto con `Archive 5.zip`
+
+Los tiempos `5/10`, `5/15` y `5/10` son rangos aleatorios por servicio. Los programas Scratch no condicionan esos tiempos por gravedad.
 
 ## Experiencia de producto
 
@@ -50,6 +54,8 @@ Mientras no haya respuesta, un prototipo puede asumir:
 - fixtures actuales de 49, 28, 17 y 8 llegadas;
 - límite de servicio de 60 segundos;
 - paciente normal `$50`, clave `$200`, tarde `$0`;
+- personal y mantenimiento contabilizados por ronda;
+- penalidad adicional inicial `$0`, marcada como regla pendiente;
 - ruta de análisis con retorno a Guardia;
 - estética 3D estilizada sin logos dentro de los assets públicos;
 - escala definida por circulación jugable, marcada como aproximada.

@@ -16,6 +16,19 @@
   - Ubicación original: `/Users/mgoffan/Downloads/`
   - 17 fotografías JPEG útiles y 17 entradas auxiliares de macOS.
   - Contiene tableros de salas, fichas de pacientes y bocetos del proceso utilizado por el equipo.
+- `Archive 5.zip`
+  - Ubicación original: `/Users/mgoffan/Downloads/`.
+  - 3 fotografías JPEG útiles y entradas auxiliares de macOS.
+  - Contiene costos, cambios posibles y cuatro QR que enlazan los programas de rol.
+
+### Programas de rol
+
+- Admin: <https://queue-scan-assist.lovable.app/>
+- Enfermero: <https://scratch.mit.edu/projects/322723091/>
+- Médico: <https://scratch.mit.edu/projects/322722424/>
+- Rayos: <https://scratch.mit.edu/projects/322727544/>
+
+Los proyectos Scratch se inspeccionaron mediante su representación JSON pública para verificar cantidad de recursos y rangos de procesamiento.
 
 ### Aplicación pública
 
@@ -32,6 +45,10 @@ La auditoría se realizó sobre el HTML y el bundle JavaScript de producción di
 - React Three Rapier: <https://pmndrs.github.io/react-three-rapier/>
 - Vite, despliegue estático: <https://vite.dev/guide/static-deploy.html>
 - Colyseus: <https://docs.colyseus.io/>
+
+### Referencia de arte
+
+- Red Hot Chili Peppers, `Californication` (videoclip oficial): <https://www.youtube.com/watch?v=YlUKcNNmywk>
 
 ## Tratamiento de los materiales
 

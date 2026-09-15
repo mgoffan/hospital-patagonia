@@ -15,6 +15,18 @@
 - [ ] **Manual:** pantalla inicial carga sin errores visibles en Chrome, Firefox y Safari.
 - [ ] **Automático:** dependencias directas y decisiones arquitectónicas están documentadas.
 
+## Hito 0.5 - Configuración de partida
+
+- [ ] **Manual, bloqueante:** se puede elegir demanda, rol, nombre y semilla antes de iniciar.
+- [ ] **Manual, bloqueante:** cada recurso muestra costo unitario, cantidad y subtotal.
+- [ ] **Automático, bloqueante:** el total equivale a la suma de recursos y mantenimiento activos.
+- [ ] **Automático:** los ingresos unitarios son `$50` normal, `$200` VIP y `$0` tarde.
+- [ ] **Automático, bloqueante:** no se confirma una ronda sin administrativo, enfermero y médico.
+- [ ] **Automático:** radiología activa exige operador y máquina.
+- [ ] **Automático, bloqueante:** confirmar crea un snapshot que no cambia al editar el formulario.
+- [ ] **Manual:** la interfaz distingue ingresos, costos e inversiones sin llamar ganancia al ingreso.
+- [ ] **Manual:** la pantalla funciona con teclado y no depende sólo de color.
+
 ## Hito 1 - Motor determinista
 
 - [ ] **Automático, bloqueante:** el escenario puede declarar duración y schedule de llegadas.
