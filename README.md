@@ -12,7 +12,7 @@ El proyecto se encuentra en pre-alpha. El corte actual implementa configuración
 4. Ejecutar una ronda headless con colas y capacidad.
 5. Analizar pacientes, cuello de botella, utilización y P&L.
 
-El siguiente hito conecta pacientes y tareas interactivas al mundo. La simulación y el render permanecen desacoplados.
+El mundo incluye una primera circulación animada de pacientes para validar su lectura. El siguiente hito conecta esas rutas con el motor determinista y agrega tareas interactivas; por ahora, simulación y render permanecen desacoplados.
 
 ## Desarrollo
 
