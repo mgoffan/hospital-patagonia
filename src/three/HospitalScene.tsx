@@ -811,6 +811,9 @@ function navigationWaypoint(
     destinationInsideRoom &&
     roomIndexForX(current.x) === roomIndexForX(destination.x)
   ) {
+    if (Math.abs(current.x - destination.x) > 0.08) {
+      return waypoint.set(destination.x, 0, current.z);
+    }
     return waypoint.copy(destination);
   }
 
@@ -842,12 +845,22 @@ function navigationWaypoint(
 
   if (destinationInsideRoom) {
     const entranceX = roomPassageX(destination.x);
-    if (Math.abs(current.x - entranceX) > 0.08 || current.z > 1.05) {
-      return waypoint.set(entranceX, 0, 0.9);
+    if (current.z > 1.05) {
+      return waypoint.set(current.x, 0, 1.05);
+    }
+    if (Math.abs(current.x - entranceX) > 0.08) {
+      return waypoint.set(entranceX, 0, current.z);
     }
     if (current.z > -0.82) return waypoint.set(entranceX, 0, -0.9);
+
+    if (Math.abs(current.x - destination.x) > 0.08) {
+      return waypoint.set(destination.x, 0, current.z);
+    }
   }
 
+  if (Math.abs(current.x - destination.x) > 0.08) {
+    return waypoint.set(destination.x, 0, current.z);
+  }
   return waypoint.copy(destination);
 }
 
@@ -893,7 +906,11 @@ function PatientActor({
     const distance = currentVector.current.distanceTo(waypoint);
     if (distance < 0.025) return;
 
-    const step = Math.min(distance, delta * 4.6);
+    const movementSpeed =
+      state.activity === "inService" && state.stationId === "administration"
+        ? 9
+        : 4.6;
+    const step = Math.min(distance, delta * movementSpeed);
     const direction = waypoint.sub(currentVector.current).normalize();
     const next = currentVector.current.addScaledVector(direction, step);
     rigidBody.setNextKinematicTranslation(next);
@@ -1020,45 +1037,91 @@ function PatientRoutes() {
         color="#e86f51"
         points={[
           [0, 8.85],
+          [0, 8.15],
           [-3.8, 8.15],
           [-3.8, 6.9],
-          [-6.1, 6.85],
+          [-6.1, 6.9],
         ]}
       />
       <FloorTape
         color="#35b96f"
         points={[
-          [2.2, 4.45],
-          [-8.8, 1.05],
-          [-10.62, 0.9],
-          [-10.62, -3.25],
+          [-6.1, 6.9],
+          [-3.8, 6.9],
+          [-3.8, 1.05],
+          [-10.62, 1.05],
+          [-10.62, -3.35],
+        ]}
+      />
+      <FloorTape
+        color="#35b96f"
+        points={[
+          [2.5, 4.1],
+          [2.5, 1.05],
+          [-10.62, 1.05],
+          [-10.62, -3.35],
+        ]}
+      />
+      <FloorTape
+        color="#35b96f"
+        points={[
+          [-10.62, -3.35],
+          [-11.7, -3.35],
+        ]}
+      />
+      <FloorTape
+        color="#35b96f"
+        points={[
+          [-10.62, -3.35],
+          [-9.5, -3.35],
         ]}
       />
       <FloorTape
         color="#f0c83f"
         points={[
-          [4.6, 4.45],
-          [4.6, 1.15],
-          [-5.12, 0.9],
-          [-5.12, -3.05],
+          [5, 4.1],
+          [5, 1.05],
+          [-5.12, 1.05],
+          [-5.12, -3.15],
+        ]}
+      />
+      <FloorTape
+        color="#f0c83f"
+        points={[
+          [-5.12, -3.15],
+          [-4.25, -3.15],
         ]}
       />
       <FloorTape
         color="#f09b38"
         points={[
-          [5.1, 4.45],
-          [5.1, 1.3],
-          [-0.12, 0.9],
-          [-0.12, -3.05],
+          [7.5, 4.1],
+          [7.5, 1.05],
+          [-0.12, 1.05],
+          [-0.12, -3.15],
+        ]}
+      />
+      <FloorTape
+        color="#f09b38"
+        points={[
+          [-0.12, -3.15],
+          [0.75, -3.15],
         ]}
       />
       <FloorTape
         color="#349bc4"
         points={[
-          [7.25, 4.45],
-          [7.25, 1.15],
-          [10.88, 0.9],
-          [10.88, -3.1],
+          [9.3, 4.25],
+          [9.3, 1.05],
+          [10.88, 1.05],
+          [10.88, -3.15],
+        ]}
+      />
+      <FloorTape
+        color="#349bc4"
+        points={[
+          [10.88, -3.15],
+          [9.4, -3.15],
         ]}
       />
     </group>
