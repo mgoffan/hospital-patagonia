@@ -136,3 +136,6 @@ La circulación ya no es una decoración independiente del motor:
 - el QR numérico aparece en frente y espalda de la remera;
 - después de Administración se colocan pulseras verdes, amarillas, violetas o rosas para distinguir normal/VIP y con/sin análisis;
 - cintas de piso coral, verde, amarilla, naranja y azul señalan recepción, Enfermería, consultorios y Rayos.
+- los pacientes en espera ocupan una silla, dejan de caminar y miran hacia el pasillo;
+- el umbral de tardanza de la webapp (`> 60 s`) se expresa con sangre en la cabeza y una etiqueta roja `TARDE`;
+- los colliders de personas apoyan en la cota superior del piso y las puertas abren sobre la bisagra real para despejar el vano.

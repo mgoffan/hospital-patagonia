@@ -81,6 +81,7 @@ Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y lon
 - slot de recurso asignado.
 - registro completado y color de pulsera;
 - estado de salida posterior al alta.
+- condición visual de tardanza: más de `60 s` desde la llegada.
 
 El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla, verificar que nadie aparezca antes de llegar y mantener el alta visible mientras el paciente abandona el edificio.
 
