@@ -25,6 +25,7 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 10. [Configuración de partida](./session-configuration.md)
 11. [Economía y resultados](./economics-and-results.md)
 12. [Dirección de arte](./art-direction.md)
+13. [Motor de simulación implementado](./simulation-engine.md)
 
 ## Estado
 
@@ -35,7 +36,8 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 - Inspección de los programas Scratch de Enfermería, Médico y Rayos: completa.
 - Lectura de los cinco QR visibles: completa.
 - Especificación y plan de implementación: completos con supuestos provisionales explícitos.
-- Implementación: en curso; el primer corte es la configuración de partida.
+- Implementación: configuración, motor determinista y primer debrief operativos.
+- Próxima etapa: greybox 3D e interacción first-person conectada a comandos del motor.
 
 ## Principio rector
 
