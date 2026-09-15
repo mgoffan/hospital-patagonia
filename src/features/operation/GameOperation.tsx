@@ -34,14 +34,17 @@ export default function GameOperation({
     (simulation.durationMs - elapsedMs) / 1000,
   );
   const clock = `${String(Math.floor(remainingSeconds / 60)).padStart(2, "0")}:${String(remainingSeconds % 60).padStart(2, "0")}`;
-  const activePatients = useMemo(
+  const visiblePatients = useMemo(
     () => deriveVisualPatientStates(simulation, elapsedMs),
     [elapsedMs, simulation],
+  );
+  const activePatients = visiblePatients.filter(
+    (patient) => patient.activity !== "departing",
   );
   const dischargedCount = simulation.events.filter(
     (event) => event.type === "patientDischarged" && event.atMs <= elapsedMs,
   ).length;
-  const queuedCount = activePatients.filter(
+  const queuedCount = visiblePatients.filter(
     (patient) => patient.activity === "queued",
   ).length;
 
@@ -51,7 +54,7 @@ export default function GameOperation({
       setElapsedMs((current) =>
         Math.min(simulation.durationMs, current + 1_000),
       );
-    }, 100);
+    }, 1_000);
     return () => {
       window.clearInterval(interval);
     };
@@ -98,7 +101,9 @@ export default function GameOperation({
             <strong>{role?.label}</strong>
           </div>
           <div className="operation-clock">
-            <span>{running ? "RONDA EN CURSO · ×10" : "RONDA EN PAUSA"}</span>
+            <span>
+              {running ? "RONDA EN CURSO · TIEMPO REAL" : "RONDA EN PAUSA"}
+            </span>
             <strong>{clock}</strong>
           </div>
           <div>
@@ -118,7 +123,7 @@ export default function GameOperation({
           <h1 id="operation-title">Recorré el hospital.</h1>
           <p>
             Las llegadas, colas y servicios ahora siguen el motor determinista.
-            Entrá al mundo para iniciar el reloj acelerado.
+            Iniciá el reloj y entrá al mundo para seguir cada recorrido.
           </p>
           <dl className="live-flow-stats" aria-label="Estado de la ronda">
             <div>
