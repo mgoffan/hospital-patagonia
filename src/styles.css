@@ -1109,6 +1109,23 @@ summary:focus-visible {
   overflow: hidden;
 }
 
+.operation-stage::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, transparent 48%, rgba(10, 28, 35, 0.2)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  content: "";
+  pointer-events: none;
+}
+
 .operation-canvas,
 .operation-canvas canvas {
   width: 100%;
@@ -1165,6 +1182,7 @@ summary:focus-visible {
   box-shadow: 5px 5px 0 rgba(23, 37, 46, 0.75);
   align-items: center;
   pointer-events: none;
+  z-index: 2;
 }
 
 .operation-topbar > div {
@@ -1213,6 +1231,7 @@ summary:focus-visible {
   font-weight: 950;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .operation-brief {
@@ -1225,6 +1244,7 @@ summary:focus-visible {
   background: rgba(244, 233, 216, 0.9);
   box-shadow: 5px 5px 0 rgba(23, 37, 46, 0.75);
   pointer-events: none;
+  z-index: 2;
 }
 
 .operation-brief .eyebrow {
@@ -1256,6 +1276,7 @@ summary:focus-visible {
   grid-template-columns: repeat(3, 42px);
   grid-template-areas: "left up right" ". down .";
   gap: 5px;
+  z-index: 2;
 }
 
 .movement-panel button {
@@ -1298,6 +1319,7 @@ summary:focus-visible {
   color: var(--paper);
   align-items: center;
   gap: 14px;
+  z-index: 2;
 }
 
 .operation-actions button {

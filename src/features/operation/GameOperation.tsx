@@ -79,12 +79,11 @@ export default function GameOperation({
         ) : null}
 
         <div className="operation-brief">
-          <p className="eyebrow">GREYBOX 3D · M2</p>
+          <p className="eyebrow">PROTOTIPO VISUAL · M3</p>
           <h1 id="operation-title">Recorré el hospital.</h1>
           <p>
-            Validá escala, circulación y lectura de salas antes de sumar
-            pacientes activos. El reloj de la ronda todavía no corre dentro del
-            mundo.
+            Explorá la primera reconstrucción low-poly de las salas. El reloj de
+            la ronda todavía no corre dentro del mundo.
           </p>
         </div>
 
