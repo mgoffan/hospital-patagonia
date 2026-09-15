@@ -7,8 +7,15 @@ import {
   RigidBody,
   type RapierRigidBody,
 } from "@react-three/rapier";
-import { useMemo, useRef } from "react";
-import { Group, Vector3 } from "three";
+import QRCode from "qrcode";
+import { useEffect, useMemo, useRef } from "react";
+import {
+  CanvasTexture,
+  Group,
+  NearestFilter,
+  SRGBColorSpace,
+  Vector3,
+} from "three";
 
 import type { SimulationResult, StationId } from "../simulation/engine";
 import {
@@ -468,59 +475,56 @@ function OpenDoor({
 }
 
 function PatientQr({ code }: { code: number }) {
-  const cells = useMemo(() => {
-    const blackCells: [number, number][] = [];
-    const inFinder = (
-      row: number,
-      column: number,
-      top: number,
-      left: number,
-    ) => {
-      const localRow = row - top;
-      const localColumn = column - left;
-      if (localRow < 0 || localRow > 2 || localColumn < 0 || localColumn > 2)
-        return false;
-      return (
-        localRow === 0 ||
-        localRow === 2 ||
-        localColumn === 0 ||
-        localColumn === 2 ||
-        (localRow === 1 && localColumn === 1)
-      );
-    };
-
-    for (let row = 0; row < 9; row += 1) {
-      for (let column = 0; column < 9; column += 1) {
-        const finder =
-          inFinder(row, column, 0, 0) ||
-          inFinder(row, column, 0, 6) ||
-          inFinder(row, column, 6, 0);
-        const payload =
-          (row * 17 + column * 11 + code * 7 + row * column) % 5 < 2;
-        if (finder || (row > 2 && column > 2 && payload)) {
-          blackCells.push([row, column]);
-        }
+  const texture = useMemo(() => {
+    const matrix = QRCode.create(String(code), {
+      errorCorrectionLevel: "H",
+    }).modules;
+    const quietZone = 4;
+    const cellSize = 6;
+    const canvas = document.createElement("canvas");
+    canvas.width = (matrix.size + quietZone * 2) * cellSize;
+    canvas.height = canvas.width;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("No se pudo crear la textura QR.");
+    context.fillStyle = "#fffdf5";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "#101820";
+    for (let row = 0; row < matrix.size; row += 1) {
+      for (let column = 0; column < matrix.size; column += 1) {
+        if (matrix.data[row * matrix.size + column] !== 1) continue;
+        context.fillRect(
+          (column + quietZone) * cellSize,
+          (row + quietZone) * cellSize,
+          cellSize,
+          cellSize,
+        );
       }
     }
-    return blackCells;
+    const qrTexture = new CanvasTexture(canvas);
+    qrTexture.colorSpace = SRGBColorSpace;
+    qrTexture.magFilter = NearestFilter;
+    qrTexture.minFilter = NearestFilter;
+    return qrTexture;
   }, [code]);
 
-  const cellSize = 0.028;
+  useEffect(
+    () => () => {
+      texture.dispose();
+    },
+    [texture],
+  );
+
   return (
-    <group position={[0, 1.18, 0.19]}>
-      <RoundedBox args={[0.31, 0.31, 0.025]} radius={0.018} smoothness={1}>
-        <meshBasicMaterial color="#fffdf5" />
-      </RoundedBox>
-      {cells.map(([row, column]) => (
-        <mesh
-          key={`${String(row)}-${String(column)}`}
-          position={[(column - 4) * cellSize, (4 - row) * cellSize, 0.019]}
-        >
-          <boxGeometry args={[cellSize * 0.88, cellSize * 0.88, 0.012]} />
-          <meshBasicMaterial color="#101820" />
-        </mesh>
-      ))}
-    </group>
+    <>
+      <mesh position={[0, 1.18, 0.186]}>
+        <planeGeometry args={[0.33, 0.33]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+      <mesh position={[0, 1.18, -0.186]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[0.33, 0.33]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+    </>
   );
 }
 
@@ -664,14 +668,7 @@ function HumanFigure({
       >
         <meshToonMaterial color="#f4e9d8" />
       </RoundedBox>
-      {qrCode === undefined ? null : (
-        <>
-          <PatientQr code={qrCode} />
-          <group rotation={[0, Math.PI, 0]}>
-            <PatientQr code={qrCode} />
-          </group>
-        </>
-      )}
+      {qrCode === undefined ? null : <PatientQr code={qrCode} />}
     </group>
   );
 }
