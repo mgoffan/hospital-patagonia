@@ -44,7 +44,7 @@ export function App() {
         </a>
         <span className="build-tag">
           PRE-ALPHA ·{" "}
-          {simulation ? "DEBRIEF" : operationStarted ? "M3 VISUAL" : "SETUP"}
+          {simulation ? "DEBRIEF" : operationStarted ? "M4 FLOW" : "SETUP"}
         </span>
       </header>
 

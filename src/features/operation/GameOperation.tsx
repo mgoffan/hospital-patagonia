@@ -79,10 +79,10 @@ export default function GameOperation({
         ) : null}
 
         <div className="operation-brief">
-          <p className="eyebrow">PROTOTIPO VISUAL · M3</p>
+          <p className="eyebrow">PROTOTIPO JUGABLE · M4</p>
           <h1 id="operation-title">Recorré el hospital.</h1>
           <p>
-            Explorá la primera reconstrucción low-poly de las salas. El reloj de
+            Observá pacientes y personal circulando por el proceso. El reloj de
             la ronda todavía no corre dentro del mundo.
           </p>
         </div>
