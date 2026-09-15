@@ -23,19 +23,13 @@ test("configures, enters the greybox and reviews results", async ({ page }) => {
   await expect(page.locator(".world-label").first()).toBeVisible({
     timeout: 15_000,
   });
-  await page.getByRole("button", { name: "Entrar e iniciar ronda" }).click();
+  await page.getByRole("button", { name: "Iniciar reloj" }).click();
   await expect(
-    page.getByRole("button", { name: "Volver a first-person" }),
+    page.getByRole("button", { name: "Pausar reloj" }),
   ).toBeVisible();
   await expect(page.locator(".operation-clock span")).toContainText(
     "RONDA EN CURSO",
   );
-  await page.evaluate(() => {
-    if (document.pointerLockElement) document.exitPointerLock();
-  });
-  await expect
-    .poll(() => page.evaluate(() => document.pointerLockElement === null))
-    .toBe(true);
 
   await page.getByRole("button", { name: "Saltar al resultado" }).click();
   await expect(
