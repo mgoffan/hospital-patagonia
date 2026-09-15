@@ -32,4 +32,24 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("$250")).toBeInTheDocument();
   });
+
+  it("runs a deterministic round and shows its debrief", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Confirmar partida" }));
+    await user.click(
+      screen.getByRole("button", { name: "Simular ronda de 5 minutos" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Así funcionó tu hospital." }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Resultado principal" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("table", { name: "Desempeño por estación" }),
+    ).toBeInTheDocument();
+  });
 });

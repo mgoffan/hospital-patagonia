@@ -1,13 +1,21 @@
 import { useState } from "react";
 
 import type { RoundConfiguration } from "./domain/configuration";
+import { RoundDebrief } from "./features/debrief/RoundDebrief";
 import { GameSetup } from "./features/setup/GameSetup";
 import { ReadyRoom } from "./features/setup/ReadyRoom";
+import { runSimulation, type SimulationResult } from "./simulation/engine";
 
 export function App() {
   const [configuration, setConfiguration] = useState<RoundConfiguration | null>(
     null,
   );
+  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
+
+  const reset = () => {
+    setSimulation(null);
+    setConfiguration(null);
+  };
 
   return (
     <div className="app-shell">
@@ -30,14 +38,21 @@ export function App() {
             <small>Turno Crítico</small>
           </span>
         </a>
-        <span className="build-tag">PRE-ALPHA · SETUP</span>
+        <span className="build-tag">
+          PRE-ALPHA · {simulation ? "DEBRIEF" : "SETUP"}
+        </span>
       </header>
 
-      {configuration ? (
+      {simulation ? (
+        <RoundDebrief simulation={simulation} onNewRound={reset} />
+      ) : configuration ? (
         <ReadyRoom
           configuration={configuration}
           onEdit={() => {
             setConfiguration(null);
+          }}
+          onRun={() => {
+            setSimulation(runSimulation(configuration));
           }}
         />
       ) : (

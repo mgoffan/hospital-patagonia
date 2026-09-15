@@ -7,9 +7,10 @@ import {
 type ReadyRoomProps = {
   configuration: RoundConfiguration;
   onEdit: () => void;
+  onRun: () => void;
 };
 
-export function ReadyRoom({ configuration, onEdit }: ReadyRoomProps) {
+export function ReadyRoom({ configuration, onEdit, onRun }: ReadyRoomProps) {
   const demand = DEMAND_OPTIONS.find(
     (option) => option.id === configuration.demandId,
   );
@@ -27,8 +28,8 @@ export function ReadyRoom({ configuration, onEdit }: ReadyRoomProps) {
         <h1>{configuration.name}</h1>
         <p className="ready-copy">
           La ronda quedó congelada con la versión económica{" "}
-          {configuration.economyVersion}. El próximo hito conecta este setup con
-          el hospital first-person.
+          {configuration.economyVersion}. Podés ejecutar ahora el motor de
+          operaciones y revisar su resultado.
         </p>
         <dl className="ready-stats">
           <div>
@@ -54,8 +55,8 @@ export function ReadyRoom({ configuration, onEdit }: ReadyRoomProps) {
           <button className="secondary-button" type="button" onClick={onEdit}>
             Editar configuración
           </button>
-          <button className="disabled-button" type="button" disabled>
-            Hospital 3D · siguiente hito
+          <button className="primary-button" type="button" onClick={onRun}>
+            Simular ronda de 5 minutos
           </button>
         </div>
       </section>
