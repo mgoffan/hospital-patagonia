@@ -80,6 +80,7 @@ Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y lon
 - posición dentro de la cola;
 - slot de recurso asignado.
 - registro completado y color de pulsera;
+- marca `checkedIn` después de 1.000 ms de permanencia en Administración, sincronizando la pulsera visual con la pausa de recepción;
 - estado de salida posterior al alta.
 - condición visual de tardanza: más de `60 s` desde la llegada.
 

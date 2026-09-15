@@ -133,6 +133,8 @@ La circulación ya no es una decoración independiente del motor:
 - el reloj corre en tiempo real para que el desplazamiento físico alcance cada evento;
 - las colas clínicas ocupan la sala de espera y los servicios llevan al paciente por el pasillo y la puerta correspondiente;
 - el alta conserva al personaje durante su caminata hacia la salida;
+- cada ruta se descompone en tramos ortogonales: los pacientes solo giran 90° y nunca caminan en diagonal;
+- al llegar, cada paciente se detiene un segundo completo frente a Administración antes de continuar;
 - el QR numérico aparece en frente y espalda de la remera;
 - después de Administración se colocan pulseras verdes, amarillas, violetas o rosas para distinguir normal/VIP y con/sin análisis;
 - cintas de piso coral, verde, amarilla, naranja y azul señalan recepción, Enfermería, consultorios y Rayos.
