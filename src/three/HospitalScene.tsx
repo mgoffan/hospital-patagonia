@@ -467,6 +467,63 @@ function OpenDoor({
   );
 }
 
+function PatientQr({ code }: { code: number }) {
+  const cells = useMemo(() => {
+    const blackCells: [number, number][] = [];
+    const inFinder = (
+      row: number,
+      column: number,
+      top: number,
+      left: number,
+    ) => {
+      const localRow = row - top;
+      const localColumn = column - left;
+      if (localRow < 0 || localRow > 2 || localColumn < 0 || localColumn > 2)
+        return false;
+      return (
+        localRow === 0 ||
+        localRow === 2 ||
+        localColumn === 0 ||
+        localColumn === 2 ||
+        (localRow === 1 && localColumn === 1)
+      );
+    };
+
+    for (let row = 0; row < 9; row += 1) {
+      for (let column = 0; column < 9; column += 1) {
+        const finder =
+          inFinder(row, column, 0, 0) ||
+          inFinder(row, column, 0, 6) ||
+          inFinder(row, column, 6, 0);
+        const payload =
+          (row * 17 + column * 11 + code * 7 + row * column) % 5 < 2;
+        if (finder || (row > 2 && column > 2 && payload)) {
+          blackCells.push([row, column]);
+        }
+      }
+    }
+    return blackCells;
+  }, [code]);
+
+  const cellSize = 0.028;
+  return (
+    <group position={[0, 1.18, 0.19]}>
+      <RoundedBox args={[0.31, 0.31, 0.025]} radius={0.018} smoothness={1}>
+        <meshBasicMaterial color="#fffdf5" />
+      </RoundedBox>
+      {cells.map(([row, column]) => (
+        <mesh
+          key={`${String(row)}-${String(column)}`}
+          position={[(column - 4) * cellSize, (4 - row) * cellSize, 0.019]}
+        >
+          <boxGeometry args={[cellSize * 0.88, cellSize * 0.88, 0.012]} />
+          <meshBasicMaterial color="#101820" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function HumanFigure({
   position,
   topColor,
@@ -475,6 +532,8 @@ function HumanFigure({
   hairColor = "#3a2c27",
   phase = 0,
   walking = false,
+  qrCode,
+  braceletColor,
 }: {
   position: [number, number, number];
   topColor: string;
@@ -483,6 +542,8 @@ function HumanFigure({
   hairColor?: string;
   phase?: number;
   walking?: boolean;
+  qrCode?: number;
+  braceletColor?: string;
 }) {
   const root = useRef<Group>(null);
   const leftArm = useRef<Group>(null);
@@ -554,6 +615,16 @@ function HumanFigure({
             <capsuleGeometry args={[0.085, 0.25, 4, 8]} />
             <meshToonMaterial color={skinColor} />
           </mesh>
+          {braceletColor ? (
+            <mesh position={[0, -0.58, 0]} castShadow>
+              <cylinderGeometry args={[0.132, 0.132, 0.14, 12]} />
+              <meshStandardMaterial
+                color={braceletColor}
+                emissive={braceletColor}
+                emissiveIntensity={0.22}
+              />
+            </mesh>
+          ) : null}
           <mesh position={[0, -0.81, 0]} castShadow>
             <sphereGeometry args={[0.115, 8, 6]} />
             <meshToonMaterial color={skinColor} />
@@ -593,6 +664,14 @@ function HumanFigure({
       >
         <meshToonMaterial color="#f4e9d8" />
       </RoundedBox>
+      {qrCode === undefined ? null : (
+        <>
+          <PatientQr code={qrCode} />
+          <group rotation={[0, Math.PI, 0]}>
+            <PatientQr code={qrCode} />
+          </group>
+        </>
+      )}
     </group>
   );
 }
@@ -634,14 +713,38 @@ const queueOrigins: Record<StationId, [number, number, number]> = {
   xray: [8.2, 0, 1.25],
 };
 
-function patientTarget(state: VisualPatientState): [number, number, number] {
+const waitingPositions: [number, number, number][] = [
+  [2.5, 0, 3.25],
+  [5, 0, 3.25],
+  [7.5, 0, 3.25],
+  [2.5, 0, 5.75],
+  [5, 0, 5.75],
+  [7.5, 0, 5.75],
+  [9.3, 0, 4.25],
+  [9.3, 0, 5.25],
+];
+
+function patientTarget(
+  state: VisualPatientState,
+  waitingIndex: number,
+): [number, number, number] {
+  if (state.activity === "departing") {
+    return [state.code % 2 === 0 ? 0.75 : -0.75, 0, 10.4];
+  }
+
   if (state.activity === "inService") {
     const positions = servicePositions[state.stationId];
     return positions[state.resourceSlot ?? 0] ?? positions[0] ?? [0, 0, 0];
   }
 
+  if (state.stationId !== "administration") {
+    return (
+      waitingPositions[waitingIndex % waitingPositions.length] ?? [5, 0, 5]
+    );
+  }
+
   const origin = queueOrigins[state.stationId];
-  const columns = state.stationId === "administration" ? 4 : 3;
+  const columns = 4;
   const column = state.queueIndex % columns;
   const row = Math.floor(state.queueIndex / columns);
   return [origin[0] + column * 0.82, 0, origin[2] + row * 0.82];
@@ -698,10 +801,16 @@ function navigationWaypoint(
   return waypoint.copy(destination);
 }
 
-function PatientActor({ state }: { state: VisualPatientState }) {
+function PatientActor({
+  state,
+  waitingIndex,
+}: {
+  state: VisualPatientState;
+  waitingIndex: number;
+}) {
   const body = useRef<RapierRigidBody>(null);
   const visual = useRef<Group>(null);
-  const target = patientTarget(state);
+  const target = patientTarget(state, waitingIndex);
   const targetVector = useRef(new Vector3());
   const currentVector = useRef(new Vector3());
   const waypointVector = useRef(new Vector3());
@@ -709,6 +818,13 @@ function PatientActor({ state }: { state: VisualPatientState }) {
   const patientColors = ["#d98355", "#738caf", "#b98755", "#6d9c82"];
   const topColor =
     patientColors[(state.code - 1) % patientColors.length] ?? "#738caf";
+  const braceletColor = state.requiresXray
+    ? vip
+      ? "#ff4f9a"
+      : "#ffd23f"
+    : vip
+      ? "#9b6de3"
+      : "#35d07f";
 
   useFrame((_state, delta) => {
     const rigidBody = body.current;
@@ -724,7 +840,7 @@ function PatientActor({ state }: { state: VisualPatientState }) {
     const distance = currentVector.current.distanceTo(waypoint);
     if (distance < 0.025) return;
 
-    const step = Math.min(distance, delta * 2.35);
+    const step = Math.min(distance, delta * 4.6);
     const direction = waypoint.sub(currentVector.current).normalize();
     const next = currentVector.current.addScaledVector(direction, step);
     rigidBody.setNextKinematicTranslation(next);
@@ -750,6 +866,8 @@ function PatientActor({ state }: { state: VisualPatientState }) {
           hairColor={vip ? "#bf6c3f" : "#332924"}
           phase={state.code * 0.73}
           walking
+          qrCode={state.code}
+          {...(state.checkedIn ? { braceletColor } : {})}
         />
         <Html
           position={[0, 2.3, 0]}
@@ -758,7 +876,9 @@ function PatientActor({ state }: { state: VisualPatientState }) {
           style={{ pointerEvents: "none" }}
         >
           <span className={`patient-world-tag ${vip ? "vip" : ""}`}>
-            {vip ? "VIP · " : ""}#{String(state.code).padStart(2, "0")}
+            {vip ? "VIP · " : ""}
+            {state.requiresXray ? "ANÁLISIS · " : ""}#
+            {String(state.code).padStart(2, "0")}
           </span>
         </Html>
       </group>
@@ -778,9 +898,107 @@ function SimulationPatientFlow({
     [elapsedMs, simulation],
   );
 
+  const waitingOrder = new Map(
+    visiblePatients
+      .filter(
+        (state) =>
+          state.activity === "queued" && state.stationId !== "administration",
+      )
+      .map((state, index) => [state.id, index]),
+  );
+
   return visiblePatients.map((state) => (
-    <PatientActor key={state.id} state={state} />
+    <PatientActor
+      key={state.id}
+      state={state}
+      waitingIndex={waitingOrder.get(state.id) ?? 0}
+    />
   ));
+}
+
+function FloorTape({
+  points,
+  color,
+}: {
+  points: [number, number][];
+  color: string;
+}) {
+  return points.slice(1).map(([x, z], index) => {
+    const start = points[index];
+    if (!start) return null;
+    const [startX, startZ] = start;
+    const deltaX = x - startX;
+    const deltaZ = z - startZ;
+    const length = Math.hypot(deltaX, deltaZ);
+    return (
+      <mesh
+        key={`${String(index)}-${color}`}
+        position={[(startX + x) / 2, 0.115, (startZ + z) / 2]}
+        rotation={[0, Math.atan2(deltaX, deltaZ), 0]}
+        receiveShadow
+      >
+        <boxGeometry args={[0.16, 0.018, length + 0.08]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.12}
+          roughness={0.8}
+        />
+      </mesh>
+    );
+  });
+}
+
+function PatientRoutes() {
+  return (
+    <group>
+      <FloorTape
+        color="#e86f51"
+        points={[
+          [0, 8.85],
+          [-1.4, 7.2],
+          [-3.8, 4.2],
+          [-7.15, 4.85],
+        ]}
+      />
+      <FloorTape
+        color="#35b96f"
+        points={[
+          [2.2, 4.45],
+          [-8.8, 1.05],
+          [-10.62, 0.9],
+          [-10.62, -3.25],
+        ]}
+      />
+      <FloorTape
+        color="#f0c83f"
+        points={[
+          [4.6, 4.45],
+          [4.6, 1.15],
+          [-5.12, 0.9],
+          [-5.12, -3.05],
+        ]}
+      />
+      <FloorTape
+        color="#f09b38"
+        points={[
+          [5.1, 4.45],
+          [5.1, 1.3],
+          [-0.12, 0.9],
+          [-0.12, -3.05],
+        ]}
+      />
+      <FloorTape
+        color="#349bc4"
+        points={[
+          [7.25, 4.45],
+          [7.25, 1.15],
+          [10.88, 0.9],
+          [10.88, -3.1],
+        ]}
+      />
+    </group>
+  );
 }
 
 function XrayMachine() {
@@ -972,6 +1190,7 @@ function HospitalGreybox({
         dimensions={[4.45, 0.038, 4.5]}
         color="#c99250"
       />
+      <PatientRoutes />
 
       {/* A real ceiling removes the empty open-sky feeling of the greybox. */}
       <mesh position={[0, 3.28, 0]} receiveShadow>
