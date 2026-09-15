@@ -21,7 +21,9 @@ export function FirstPersonController({
 }: FirstPersonControllerProps) {
   const body = useRef<RapierRigidBody>(null);
   const pressedKeys = useRef(new Set<string>());
-  const yaw = useRef(0);
+  // Start from the back-right corner so the initial view includes reception
+  // and the patient approach instead of looking straight down the corridor.
+  const yaw = useRef(Math.PI / 2);
   const pitch = useRef(0);
   const previousTurnSignal = useRef(turnSignal);
   const previousStepSignal = useRef(stepSignal);
@@ -141,7 +143,7 @@ export function FirstPersonController({
     <RigidBody
       ref={body}
       colliders={false}
-      position={[0, 0.85, 7.1]}
+      position={[8.2, 0.85, 7.9]}
       enabledRotations={[false, false, false]}
       gravityScale={0}
       linearDamping={8}

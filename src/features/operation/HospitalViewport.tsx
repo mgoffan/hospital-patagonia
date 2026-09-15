@@ -21,7 +21,13 @@ export default function HospitalViewport({
     <Canvas
       shadows
       dpr={[1, 1.5]}
-      camera={{ fov: 68, near: 0.1, far: 70, position: [0, 1.6, 7.1] }}
+      camera={{
+        fov: 68,
+        near: 0.1,
+        far: 70,
+        position: [8.2, 1.6, 7.9],
+        rotation: [0, Math.PI / 2, 0],
+      }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
       <Suspense fallback={null}>
