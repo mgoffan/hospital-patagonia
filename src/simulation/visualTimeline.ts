@@ -129,15 +129,6 @@ export function deriveVisualPatientStates(
     queueGroups.set(state.stationId, queue);
   }
 
-  for (const [patientId, state] of states) {
-    if (
-      state.activity === "departing" &&
-      elapsedMs - state.enteredStateAtMs > 20_000
-    ) {
-      states.delete(patientId);
-    }
-  }
-
   for (const queue of queueGroups.values()) {
     queue
       .sort(

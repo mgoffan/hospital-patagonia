@@ -99,7 +99,7 @@ describe("visual simulation timeline", () => {
     ).toMatchObject({ isLate: true });
   });
 
-  it("removes a discharged patient after the visible exit window", () => {
+  it("keeps a discharged patient available until the scene confirms physical exit", () => {
     const discharge = simulation.events.find(
       (event) => event.type === "patientDischarged",
     );
@@ -109,7 +109,7 @@ describe("visual simulation timeline", () => {
       (discharge?.atMs ?? 0) + 20_001,
     );
     expect(visible.some((patient) => patient.id === discharge?.patientId)).toBe(
-      false,
+      true,
     );
   });
 });
