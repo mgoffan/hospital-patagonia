@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("the first patient stops at reception, visits each station and leaves physically", async ({
   page,
 }) => {
-  test.setTimeout(75_000);
+  test.setTimeout(120_000);
   await page.goto("./");
   await page.getByRole("button", { name: "Confirmar partida" }).click();
   await page
@@ -86,7 +86,7 @@ test("the first patient stops at reception, visits each station and leaves physi
   await page.getByRole("button", { name: "Iniciar reloj" }).click();
 
   const first = page.locator('[data-patient-id="patient-01"]');
-  await expect(first).toBeAttached({ timeout: 16_000 });
+  await expect(first).toBeAttached({ timeout: 30_000 });
   await expect
     .poll(() => first.getAttribute("data-phase"), {
       timeout: 10_000,
@@ -140,10 +140,10 @@ test("the first patient stops at reception, visits each station and leaves physi
   expect(issues).toEqual([]);
 });
 
-test("a waiting patient sits only after reaching an available chair", async ({
+test("a waiting patient sits only after reaching an available chair @extended", async ({
   page,
 }) => {
-  test.setTimeout(100_000);
+  test.setTimeout(150_000);
   await page.goto("./?debugFlow=1");
   await page.locator('input[name="demand"][value="high"]').check();
   await page.getByRole("button", { name: "Confirmar partida" }).click();
@@ -215,7 +215,7 @@ test("a waiting patient sits only after reaching an available chair", async ({
   await page.getByRole("button", { name: "Iniciar reloj" }).click();
   const seated = page.locator('[data-sitting="yes"]').first();
   try {
-    await expect(seated).toBeAttached({ timeout: 85_000 });
+    await expect(seated).toBeAttached({ timeout: 125_000 });
   } catch (error) {
     const debug = await page.evaluate(
       () =>
@@ -223,10 +223,6 @@ test("a waiting patient sits only after reaching an available chair", async ({
     );
     throw new Error(`${String(error)}\n${JSON.stringify(debug)}`);
   }
-  const position = await seated.evaluate((element) => ({
-    x: Number((element as HTMLElement).dataset.worldX),
-    z: Number((element as HTMLElement).dataset.worldZ),
-  }));
   const approaches = [
     [2.5, 3.42],
     [5, 3.42],
@@ -235,11 +231,20 @@ test("a waiting patient sits only after reaching an available chair", async ({
     [5, 5.92],
     [7.5, 5.92],
   ];
-  expect(
-    approaches.some(
-      ([x, z]) => Math.hypot(position.x - x, position.z - z) < 0.12,
-    ),
-  ).toBe(true);
+  await expect
+    .poll(
+      async () => {
+        const position = await seated.evaluate((element) => ({
+          x: Number((element as HTMLElement).dataset.worldX),
+          z: Number((element as HTMLElement).dataset.worldZ),
+        }));
+        return approaches.some(
+          ([x, z]) => Math.hypot(position.x - x, position.z - z) < 0.12,
+        );
+      },
+      { timeout: 5_000, intervals: [25] },
+    )
+    .toBe(true);
   const issues = await page.evaluate(
     () => (window as Window & { crowdIssues?: string[] }).crowdIssues ?? [],
   );

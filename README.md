@@ -24,7 +24,7 @@ npm run dev
 ```
 
 `npm run check` ejecuta formato, lint, tipos, tests y build de producción.
-`npm run test:e2e` levanta el build y valida el flujo completo en Google Chrome.
+`npm run test:e2e -- --workers=1` valida los recorridos en Google Chrome. CI ejecuta solo el smoke `@smoke` para no depender de la duración de una ronda WebGL; la prueba de demanda alta `@extended` queda disponible con `npm run test:e2e -- --grep @extended --workers=1`.
 
 ## Documentación
 

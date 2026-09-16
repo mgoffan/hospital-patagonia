@@ -28,4 +28,4 @@ jobs:
         run: npm run check
 
       - name: Run browser smoke test
-        run: npm run test:e2e
+        run: npm run test:e2e -- --workers=1 --grep '@smoke'

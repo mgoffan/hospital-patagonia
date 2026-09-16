@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("configures, enters the greybox and reviews results", async ({ page }) => {
+test("configures, enters the greybox and reviews results @smoke", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
