@@ -25,6 +25,7 @@ import {
 import { FirstPersonController } from "./FirstPersonController";
 import {
   FLOOR_ROUTES,
+  CORRIDOR_Z,
   RECEPTION,
   RECEPTION_QUEUE,
   SEAT_APPROACHES,
@@ -762,7 +763,8 @@ function patientTarget(
     return waitingIndex < SEAT_APPROACHES.length
       ? (SEAT_APPROACHES[waitingIndex] ?? [2.5, 3.42])
       : (STANDING_POSITIONS[waitingIndex - SEAT_APPROACHES.length] ?? [
-          -2.55, 2.05,
+          -2.55,
+          CORRIDOR_Z,
         ]);
   }
 

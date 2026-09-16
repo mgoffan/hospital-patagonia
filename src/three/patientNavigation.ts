@@ -26,7 +26,7 @@ export const SEAT_APPROACHES: readonly FloorPoint[] = [
   [7.5, 5.92],
 ];
 
-const CORRIDOR_Z = 2.05;
+export const CORRIDOR_Z = 1.9;
 const RETURN_LANE_Z = 2.85;
 const CORRIDOR_X = [
   -11.25, -10.62, -5.75, -5.12, -3.8, -3.05, -2.55, -1.7, -0.85, -0.75, -0.12,

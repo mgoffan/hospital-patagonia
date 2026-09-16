@@ -6,6 +6,7 @@ import {
 } from "../domain/configuration";
 import { runSimulation } from "../simulation/engine";
 import {
+  CORRIDOR_Z,
   FLOOR_ROUTES,
   patientServiceVisits,
   RECEPTION,
@@ -53,8 +54,13 @@ function checkClear(point: FloorPoint) {
   }
   for (const doorX of doors) {
     const leafX = doorX - 0.775;
-    if (z >= -0.08 && z <= 1.55)
-      expect(Math.abs(x - leafX)).toBeGreaterThan(0.045 + radius);
+    if (z >= -0.08 - radius && z <= 1.55 + radius) {
+      const separation = Math.hypot(
+        x - leafX,
+        Math.max(-0.08 - z, 0, z - 1.55),
+      );
+      expect(separation).toBeGreaterThan(0.045 + radius);
+    }
   }
 }
 
@@ -129,12 +135,12 @@ describe("patient floor navigation", () => {
       );
       expect(routeOnFloor(queuePosition, RECEPTION).at(-1)).toEqual(RECEPTION);
     }
-    const intoDoctor = routeOnFloor([-11.25, 2.05], [-5.12, -3.15]);
-    expect(intoDoctor).toContainEqual([-5.12, 2.05]);
-    const intoNursing = routeOnFloor([-3.05, 2.05], [-11.7, -3.35]);
+    const intoDoctor = routeOnFloor([-11.25, CORRIDOR_Z], [-5.12, -3.15]);
+    expect(intoDoctor).toContainEqual([-5.12, CORRIDOR_Z]);
+    const intoNursing = routeOnFloor([-3.05, CORRIDOR_Z], [-11.7, -3.35]);
     expect(intoNursing).toContainEqual([-10.62, 2.85]);
     const outOfDoctor = routeOnFloor([-5.12, -3.15], RECEPTION, false, true);
-    expect(outOfDoctor).toContainEqual([-5.75, 2.05]);
+    expect(outOfDoctor).toContainEqual([-5.75, CORRIDOR_Z]);
     const finalExit = routeOnFloor(RECEPTION, [0, 8.8], true);
     expect(finalExit).toContainEqual([-3.05, 2.85]);
     expect(finalExit).not.toContainEqual([-3.8, 8.15]);
@@ -143,7 +149,7 @@ describe("patient floor navigation", () => {
     expect(stoppedShort).not.toContainEqual([-3.8, 8.15]);
     const afterRegistration = routeOnFloor([-6.02, 6.9], [-11.7, -3.35], true);
     expect(afterRegistration).toContainEqual([-3.05, 7.25]);
-    expect(afterRegistration).toContainEqual([-3.05, 2.05]);
+    expect(afterRegistration).toContainEqual([-3.05, CORRIDOR_Z]);
   });
 
   it("reserves only six chairs and keeps overflow patients standing in unique places", () => {
