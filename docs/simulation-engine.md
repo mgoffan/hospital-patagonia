@@ -80,11 +80,11 @@ Cada evento contiene tiempo lógico, paciente, estación, slot del recurso y lon
 - posición dentro de la cola;
 - slot de recurso asignado.
 - registro completado y color de pulsera;
-- marca `checkedIn` después de 1.000 ms de permanencia en Administración, sincronizando la pulsera visual con la pausa de recepción;
+- conserva el indicador lógico `checkedIn` del registro; en el mundo 3D la pulsera se coloca recién después de 0,5 s de pausa física frente al mostrador;
 - estado de salida posterior al alta.
 - condición visual de tardanza: más de `60 s` desde la llegada.
 
-El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla, verificar que nadie aparezca antes de llegar y mantener el alta visible mientras el paciente abandona el edificio.
+El adaptador no modifica las reglas del motor. Esto permite reproducir visualmente una misma semilla y verificar que nadie aparezca antes de llegar. El personaje se conserva después del alta lógica hasta que complete físicamente el recorrido de salida. Las visitas de servicio se recorren en orden aunque la representación 3D vaya detrás del reloj lógico.
 
 ## Resultados
 

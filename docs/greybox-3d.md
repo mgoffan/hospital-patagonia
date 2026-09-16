@@ -130,14 +130,17 @@ La primera capa M3 fue considerada todavía demasiado primitiva, con trazos exce
 
 La circulación ya no es una decoración independiente del motor:
 
-- el reloj corre en tiempo real para que el desplazamiento físico alcance cada evento;
+- el reloj corre en tiempo real y los personajes recorren físicamente los eventos en orden, incluso si quedan detrás del tiempo lógico;
 - las colas clínicas ocupan la sala de espera y los servicios llevan al paciente por el pasillo y la puerta correspondiente;
 - el alta conserva al personaje durante su caminata hacia la salida;
 - cada ruta se descompone en tramos ortogonales: los pacientes solo giran 90° y nunca caminan en diagonal;
-- al llegar, cada paciente se detiene un segundo completo frente a Administración antes de continuar;
+- la entrada admite un paciente por vez hasta que libera Administración, evitando que dos personajes aparezcan en el mismo punto;
+- al llegar, cada paciente se detiene 0,5 segundos completos frente al mostrador de Administración; allí recibe la pulsera antes de continuar;
 - el QR numérico aparece en frente y espalda de la remera;
 - después de Administración se colocan pulseras verdes, amarillas, violetas o rosas para distinguir normal/VIP y con/sin análisis;
-- cintas de piso coral, verde, amarilla, naranja y azul señalan recepción, Enfermería, consultorios y Rayos.
-- los pacientes en espera ocupan una silla, dejan de caminar y miran hacia el pasillo;
+- las cintas de piso coral, verde, amarilla, naranja y azul son la misma red ortogonal que usan los pacientes; los tramos dejan libres muros, hojas de puertas y mobiliario;
+- el pasillo clínico usa el carril inferior hacia el este y el superior hacia el oeste; los accesos a las puertas mantienen ejes separados para entrada y salida;
+- los seis primeros pacientes en espera ocupan una silla solo al alcanzar su punto de llegada, dejan de caminar y miran hacia el pasillo; el excedente espera de pie en posiciones separadas;
+- una espera significativa entre servicios se representa físicamente, aunque el recorrido 3D vaya retrasado respecto del reloj lógico;
 - el umbral de tardanza de la webapp (`> 60 s`) se expresa con sangre en la cabeza y una etiqueta roja `TARDE`;
 - los colliders de personas apoyan en la cota superior del piso y las puertas abren sobre la bisagra real para despejar el vano.
