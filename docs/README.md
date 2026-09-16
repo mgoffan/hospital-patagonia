@@ -1,6 +1,8 @@
-# Documentación de investigación
+# Documentación de Hospital Patagonia
 
-Este directorio reúne la investigación previa al plan de implementación de Hospital Patagonia. Su objetivo es separar las reglas observadas, las inferencias y las decisiones propuestas antes de construir el producto.
+Este directorio reúne la investigación, las reglas, las decisiones y el estado implementado de Hospital Patagonia. Separa las reglas observadas, las inferencias y las decisiones propuestas.
+
+Para retomar el proyecto en otra sesión, leer primero el [traspaso de continuidad](./continuity-handoff.md). Es la foto de estado más reciente y distingue lo implementado del siguiente hito.
 
 ## Especificación y plan
 
@@ -39,8 +41,8 @@ Este directorio reúne la investigación previa al plan de implementación de Ho
 - Inspección de los programas Scratch de Enfermería, Médico y Rayos: completa.
 - Lectura de los cinco QR visibles: completa.
 - Especificación y plan de implementación: completos con supuestos provisionales explícitos.
-- Implementación: configuración, motor determinista, greybox first-person y primer debrief operativos.
-- Próxima etapa: interacción contextual, pacientes y coworkers conectados a comandos del motor.
+- Implementación: configuración, motor determinista, hospital first-person, pacientes físicos guiados por el event log y debrief operativo/P&L.
+- Próxima etapa: acciones de Administración que modifiquen el motor y los resultados durante la ronda; otras estaciones automáticas en el primer corte.
 
 ## Principio rector
 

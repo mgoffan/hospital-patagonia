@@ -12,7 +12,7 @@ El proyecto se encuentra en pre-alpha. El corte actual implementa configuración
 4. Ejecutar una ronda headless con colas y capacidad.
 5. Analizar pacientes, cuello de botella, utilización y P&L.
 
-El mundo incluye una primera circulación animada de pacientes para validar su lectura. El siguiente hito conecta esas rutas con el motor determinista y agrega tareas interactivas; por ahora, simulación y render permanecen desacoplados.
+El mundo reproduce las llegadas, los servicios y las salidas del motor determinista. Los pacientes se detienen en Administración, reciben pulsera, siguen las cintas de piso, esperan sentados o de pie y evitan superponerse. La ronda aún se calcula antes de entrar al mundo: falta que las decisiones del jugador durante la partida modifiquen la simulación y el P&L.
 
 ## Desarrollo
 
@@ -28,7 +28,7 @@ npm run dev
 
 ## Documentación
 
-La [investigación previa al plan](./docs/README.md) reúne las reglas de la simulación, la auditoría de la webapp existente, la lectura de los QR, el inventario visual, el concepto de juego y la arquitectura técnica propuesta.
+Empezá por el [traspaso para la próxima sesión](./docs/continuity-handoff.md) para conocer el estado actual, las pruebas y el siguiente hito. El [índice de documentación](./docs/README.md) reúne las reglas de la simulación, la auditoría de la webapp existente, la lectura de los QR, el inventario visual y las decisiones de arquitectura.
 
 ## Sitio
 

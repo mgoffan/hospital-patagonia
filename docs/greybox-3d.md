@@ -2,9 +2,9 @@
 
 ## Estado del corte
 
-La aplicación incluye una fase 3D entre la configuración y el debrief. Su objetivo actual es validar escala, lectura de espacios, circulación, cámara y costo de carga antes de incorporar pacientes y tareas interactivas.
+La aplicación incluye una fase 3D entre la configuración y el debrief. Ya incorpora pacientes y circulación física vinculada al event log; el objetivo pendiente es convertir las tareas del jugador en acciones que afecten la simulación.
 
-El reloj permanece pausado durante este recorrido técnico. Al finalizar, el motor headless procesa la ronda y abre el debrief existente.
+El motor headless procesa la ronda al entrar en esta fase. El reloj visible comienza pausado y puede iniciarse o detenerse; la vista reproduce los eventos calculados. El debrief muestra los resultados de esa ronda precomputada.
 
 ## Espacios implementados
 
@@ -24,13 +24,13 @@ La planta es una interpretación jugable de las fotografías, no una reconstrucc
 
 | Acción | Control |
 |---|---|
-| Entrar en cámara | botón `Entrar first-person` |
+| Entrar en cámara | botón `Entrar e iniciar ronda` |
 | Moverse | `WASD` o flechas del teclado |
 | Mirar | mouse con Pointer Lock |
 | Liberar mouse | `Esc` |
 | Avanzar/retroceder sin Pointer Lock | controles visibles `↑` / `↓` |
 | Girar sin Pointer Lock | controles visibles `↶` / `↷` |
-| Terminar recorrido | botón `Finalizar ronda y ver resultados` |
+| Terminar recorrido | botón `Saltar al resultado` / `Ver resultados` |
 
 ## Stack implementado
 
@@ -76,14 +76,15 @@ El smoke test de Playwright usa Google Chrome y verifica:
 - transición al debrief;
 - ausencia de errores de consola.
 
-## Pendiente del hito M2/M3
+## Pendiente tras la circulación M4
 
 - raycast y foco de objetos;
 - prompts contextuales con tecla `E`;
-- colisión segura para los pasos accesibles por botón;
-- pacientes y coworkers navegando entre anchors;
-- navmesh;
-- reloj real conectado al mundo;
+- comandos de Administración que afecten el motor y el P&L durante la ronda;
+- coworkers capaces de reaccionar a esos comandos;
+- evaluar si hace falta navmesh más allá de la red ortogonal actual;
+- verificar que los controles alternativos respeten todas las colisiones;
+- reconciliar tiempo lógico y trayectos físicos para la interacción;
 - medición manual de FPS y compatibilidad en navegadores;
 - reemplazo gradual de props provisionales por kit modular derivado de las referencias autorizadas.
 
